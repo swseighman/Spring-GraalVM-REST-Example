@@ -35,7 +35,7 @@ With the virtual environment created, now install `termgraph`:
  >$ python3 -m pip install --upgrade pip
  >```
 
-Confirm `telegraph` installed correctly:
+Confirm `termgraph` installed correctly:
  ```
  $ termgraph
  usage: termgraph [-h] [--title TITLE] [--width WIDTH] [--format FORMAT] [--suffix SUFFIX] [--no-labels] [--no-values]
@@ -52,12 +52,12 @@ Great, with all of the prerequisites in place, we can move to the next steps.
 Let's begin by cloning the demo repository:
 
 ```
-$ git clone https://github.com/swseighman/Basic-Native-Rest-Service
+(demo-env) $ git clone https://github.com/swseighman/Spring-GraalVM-REST-Example
 ```
 Now change directory to the new project:
 
 ```
-$ cd Basic-Rest-Service
+(demo-env) $ cd Spring-GraalVM-REST-Example
 ```
 
 > **NOTE:** As an alternative to executing the following commands manually, there is a build script (`build.sh`) provided to build the project, create native image executables and build the container images.  Simply run:
@@ -68,19 +68,19 @@ $ cd Basic-Rest-Service
 
 To build the project, execute:
 ```
-mvn clean package
+(demo-env) $ mvn clean package
 ```
 
 The `pom.xml` file contains configuration parameters (*via the GraalVM Native Image Build Tools for Maven plugin*) for the Tracing Agent. The following command will run unit tests and enable the Tracing Agent, thus generating the Tracing Agent configuration for your application:
 ```
-$ mvn -Pnative -DskipNativeTests=true -DskipNativeBuild=true -Dagent=true test
+(demo-env) $ mvn -Pnative -DskipNativeTests=true -DskipNativeBuild=true -Dagent=true test
 
 ```
 
 To verify the newly created Tracing Agent configuration, execute the following command.
 
 ```
-$ ls -l target/native/agent-output/test
+(demo-env) $ ls -l target/native/agent-output/test
 total 52
 drwxrwxr-x 2 sseighma sseighma  4096 Oct 13 13:19 agent-extracted-predefined-classes
 -rw-rw-r-- 1 sseighma sseighma   538 Oct 13 13:19 jni-config.json
@@ -93,12 +93,12 @@ drwxrwxr-x 2 sseighma sseighma  4096 Oct 13 13:19 agent-extracted-predefined-cla
 
 Next, build the native image executable using the configuration files:
 ```
-$ mvn -Pnative -Dagent=true -DskipTests package
+(demo-env) $ mvn -Pnative -Dagent=true -DskipTests package
 ```
 
 
 ```
-$ docker-compose up
+(demo-env) $ docker-compose up
 ```
 
 Browse to `localhost:8080/greeting`, where you should see:
@@ -114,7 +114,7 @@ Or `curl http://localhost:8080/greeting`.
 We can build a standalone native image executable using the `native` profile which we can add to our custom containers later in this lab. Let's build a native executable:
 
 ```
-mvn package -Pnative
+(demo-env) $ mvn package -Pnative
 ```
 >If you're using **Gradle**, execute the following command to build the native image executable:
 >```
@@ -132,7 +132,7 @@ The result will produce a native image executable.
 To run the native executable application, execute the following:
 
 ```
-$ target/rest-service-demo
+(demo-env) $ target/rest-service-demo
 ...<snip>
 2022-04-04 11:27:58.076  INFO 27055 --- [           main] c.e.restservice.RestServiceApplication   : Started RestServiceApplication in 0.03 seconds (JVM running for 0.032)
 ```
@@ -147,12 +147,12 @@ Also add `x86_64-linux-musl-native/bin/x86_64-linux-musl-gcc` to your PATH.
 
 Then execute:
 ```
-mvn package -Pstatic
+(demo-env) $ mvn package -Pstatic
 ```
 
 To run the static native executable application, execute the following:
 ```
-target/rest-service-demo-static
+(demo-env) $ target/rest-service-demo-static
 ```
 
 
@@ -163,11 +163,11 @@ Within this repository, there are a few examples of deploying applications in va
 For example, to build the JAR version:
 
 ```
-$ docker build -f Dockerfile.jvm -t localhost/rest-service-demo:jvm .
+(demo-env) $ docker build -f Dockerfile.jvm -t localhost/rest-service-demo:jvm .
 ```
 
 ```
-$ docker run -i --rm -p 8080:8080 localhost/rest-service-demo:jvm
+(demo-env) $ docker run -i --rm -p 8080:8080 localhost/rest-service-demo:jvm
 ```
 
 Browse to `localhost:8080/greeting`, where you should see:
@@ -180,7 +180,10 @@ You can repeat these steps for each container option:
 
 * Dockerfile.jvm
 * Dockerfile.native
+* Dockerfile.pgo
+* Dockerfile.upx
 * Dockerfile.stage
+* Dockerfile.jlink
 * Dockerfile.distroless
 * Dockerfile.static (x64 Linux only)
 
@@ -188,7 +191,7 @@ There is also a `build-containers.sh` script provided to build the container ima
 
 Notice the variation in container image size for each of the options:
 ```
-$ docker images
+(demo-env) $ docker images
 localhost/rest-service-demo   upx            7d43ba8808df   23 hours ago    121MB
 localhost/rest-service-demo   distroless     d09302740238   23 hours ago    37.2MB
 localhost/rest-service-demo   native         18772054f07d   23 hours ago    154MB
@@ -199,12 +202,41 @@ localhost/rest-service-demo   static         8bf6f43fd6cf   4 months ago    76.3
 localhost/rest-service-demo   stage          428fdc2f55a0   4 months ago    177MB
 ```
 
-Also, you can choose to compress the native image executable using the [upx](https://upx.github.io/) utility which will reduce your container size but have little impact on startup performance.
+To deploy all of the containers, run:
+```
+(demo-env) $ cd src/main/resources/containers
+(demo-env) $ docker-compose up -d
+[+] Running 7/7
+ ⠿ Container rest-service-demo-distroless  Running                                                 0.0s
+ ⠿ Container rest-service-demo-jvm         Running                                                 0.0s
+ ⠿ Container rest-service-demo-native      Running                                                 0.0s
+ ⠿ Container rest-service-demo-upx         Running                                                 0.0s
+ ⠿ Container rest-service-demo-static      Running                                                 0.0s
+ ⠿ Container rest-service-demo-pgo         Running                                                 0.0s
+ ⠿ Container rest-service-demo-jlink       Started                                                 0.4s
+```
+
+```
+(demo-env) $ docker ps
+CONTAINER ID   IMAGE                                    COMMAND                  CREATED       STATUS       PORTS
+       NAMES
+5fef9e8aec02   localhost/rest-service-demo:jvm          "java -jar app.jar -…"   8 hours ago   Up 8 hours   0.0.0.0:8081->8080/tcp   rest-service-demo-jvm
+907a0e4e9513   localhost/rest-service-demo:static       "/app -Xms64m -Xmx64m"   8 hours ago   Up 8 hours   0.0.0.0:8087->8080/tcp   rest-service-demo-static
+959baabdf130   localhost/rest-service-demo:upx          "/app -Xms64m -Xmx64m"   8 hours ago   Up 8 hours   0.0.0.0:8083->8080/tcp   rest-service-demo-upx
+54281b6e59d2   localhost/rest-service-demo:native       "/app -Xms64m -Xmx64m"   8 hours ago   Up 8 hours   0.0.0.0:8082->8080/tcp   rest-service-demo-native
+a8e45684e8f3   localhost/rest-service-demo:pgo          "/app -Xms64m -Xmx64m"   8 hours ago   Up 8 hours   0.0.0.0:8086->8080/tcp   rest-service-demo-pgo
+66e4f93d3dab   localhost/rest-service-demo:distroless   "/app -Xms64m -Xmx64m"   8 hours ago   Up 8 hours   0.0.0.0:8084->8080/tcp   rest-service-demo-distroless
+```
+
+
+#### Compressing the Native Image Executable
+
+You can choose to compress the native image executable using the [upx](https://upx.github.io/) utility which will reduce your container size but have little impact on startup performance.
 
 For example:
 
 ```
-$ upx -7 -k target/rest-service-demo
+(demo-env) $ upx -7 -k target/rest-service-demo
 Ultimate Packer for eXecutables
                           Copyright (C) 1996 - 2020
 UPX 3.96        Markus Oberhumer, Laszlo Molnar & John Reiser   Jan 23rd 2020
@@ -215,15 +247,34 @@ UPX 3.96        Markus Oberhumer, Laszlo Molnar & John Reiser   Jan 23rd 2020
 
 Packed 1 file.
 ```
-Using `upx` we reduced the native image executable size by ~32% (from **73 M** to **24 M**):
+Using `upx` we reduced the native image executable size by ~33% (from **48 MB** to **16 MB**):
 ```
--rwxrwxr-x 1 sseighma sseighma  24M Apr  4 10:44 rest-service-demo
--rwxrwxr-x 1 sseighma sseighma  73M Apr  4 10:44 rest-service-demo.~
+-rwxrwxr-x 1 sseighma sseighma  16M Oct 13 13:28 rest-service-demo
+-rwxrwxr-x 1 sseighma sseighma  48M Oct 13 13:28 rest-service-demo.~
 ```
 
-Our native image container is now **139 MB** (versus the uncompressed version at **190 MB**):
+Our native image container is now **121 MB** (versus the uncompressed version at **154 MB**):
 
 ```
-$ docker images
-localhost/rest-service-demo            native           ff77aee72e96  8 seconds ago  139 MB
+(demo-env) $ docker images
+localhost/rest-service-demo   upx            7d43ba8808df   26 hours ago    121MB
+localhost/rest-service-demo   native         18772054f07d   26 hours ago    154MB
 ```
+
+#### Viewing Project Metrics
+
+If you're curious about image and container sizes or want to see the startup times for the containers created in this example, there are scripts located in the `src/main/resources/scripts` directory that create bar graphs for each.
+
+To compare images sizes, run the `image-sizes.sh` script:
+
+![](images/image-size.png)
+
+To compare container sizes, run the `container-sizes.sh` script:
+
+![](images/container-size.png)
+
+To compare startup times, run the `startups.sh` script:
+
+![](images/startup.png)
+
+The graphs are generated using  the `termgraph` tool we installed earlier.
