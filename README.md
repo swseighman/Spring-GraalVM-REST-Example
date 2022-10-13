@@ -35,8 +35,9 @@ With the virtual environment created, now install `termgraph`:
  >$ python3 -m pip install --upgrade pip
  >```
 
+Confirm `telegraph` installed correctly:
  ```
- termgraph
+ $ termgraph
  usage: termgraph [-h] [--title TITLE] [--width WIDTH] [--format FORMAT] [--suffix SUFFIX] [--no-labels] [--no-values]
                  [--space-between] [--color [COLOR ...]] [--vertical] [--stacked] [--histogram] [--bins BINS]
                  [--different-scale] [--calendar] [--start-dt START_DT] [--custom-tick CUSTOM_TICK] [--delim DELIM]
