@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.7.4</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>rest-service-demo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>rest-service-demo</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>17</java.version>
+		<spring-native.version>0.12.1</spring-native.version>
+		<native.maven.plugin.version>0.9.14</native.maven.plugin.version>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>1.8.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>5.8.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.experimental</groupId>
+			<artifactId>spring-native</artifactId>
+			<version>0.12.1</version>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>spring-release</id>
+			<name>Spring release</name>
+			<url>https://repo.spring.io/release</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-release</id>
+			<name>Spring release</name>
+			<url>https://repo.spring.io/release</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.experimental</groupId>
+				<artifactId>spring-aot-maven-plugin</artifactId>
+				<version>${spring-native.version}</version>
+				<executions>
+					<execution>
+						<id>generate</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>test-generate</id>
+						<goals>
+							<goal>test-generate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>native</id>
+            <build>
+                <plugins>
+					<!--
+						Copy over any tracing agent config generated when we run the tracing agent against the tests
+					-->
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.0.2</version>
+						<executions>
+							<execution>
+								<id>copy-agent-config</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<!-- The tracing agent config needs to be placed here to be picked up
+											by the native-image tool -->
+									<outputDirectory>src/main/resources/META-INF/native-image</outputDirectory>
+									<resources>
+										<resource>
+											<!-- The location that the native build tools will write the tracing agent
+													config out to -->
+											<directory>${basedir}/target/native/agent-output/test</directory>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.graalvm.buildtools</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+						<version>${native.maven.plugin.version}</version>
+						<!-- Enables JUnit Test Support -->
+						<extensions>true</extensions>
+						<executions>
+							<!-- Binds to the package phase - causes the native binary to be created when we run, mvn -Pnative package -->
+							<execution>
+								<id>build-native</id>
+								<goals>
+									<goal>build</goal>
+								</goals>
+								<phase>package</phase>
+							</execution>
+							<!-- Binds to the test phase - causes the JUnit tests to be run as native code when we run, mvn -Pnative test -->
+							<execution>
+								<id>test-native</id>
+								<goals>
+									<goal>test</goal>
+								</goals>
+								<phase>test</phase>
+							</execution>
+						</executions>
+	                    <!-- This section is used to configure how the native image build happens -->
+						<configuration>
+							<imageName>rest-service-demo</imageName>
+							<!-- Tracing Agent Configuration -->
+							<agent>
+								<!-- shared options -->
+								<options>
+									<option>experimental-class-loader-support</option>
+								</options>
+								<!-- test options -->
+								<options name="test">
+									<!-- Uses an access filter when running the Tracing Agent -->
+									<option>access-filter-file=${basedir}/src/test/resources/access-filter.json</option>
+								</options>
+							</agent>
+							<buildArgs>
+								<buildArg>-Ob</buildArg>
+								<buildArg>-H:+ReportExceptionStackTraces</buildArg>
+							</buildArgs>
+						</configuration>
+					</plugin>
+					<!-- Avoid a clash between Spring Boot repackaging and native-maven-plugin -->
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- Build a PGO version -->	
+		<profile>
+			<id>pgo-inst</id>
+			<properties>
+				<repackage.classifier>exec</repackage.classifier>
+				<native-buildtools.version>0.9.14</native-buildtools.version>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.junit.platform</groupId>
+					<artifactId>junit-platform-launcher</artifactId>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.graalvm.buildtools</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+						<version>${native-buildtools.version}</version>
+						<extensions>true</extensions>
+						<executions>
+							<execution>
+								<id>build-native</id>
+								<phase>package</phase>
+								<goals>
+									<goal>build</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<imageName>rest-service-demo-pgoinst</imageName>
+							<buildArgs>
+							<!-- G1 is supported on Linux only, comment out next line if on another platform -->
+								<buildArg>--gc=G1</buildArg>
+								<buildArg>--pgo-instrument</buildArg>
+							</buildArgs>
+                        </configuration>
+					</plugin>
+					<plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- Run the newly created instrumented native executable BEFORE building the PGO version with this profile -->
+		<profile>
+			<id>pgo</id>
+			<properties>
+				<repackage.classifier>exec</repackage.classifier>
+				<native-buildtools.version>0.9.14</native-buildtools.version>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.junit.platform</groupId>
+					<artifactId>junit-platform-launcher</artifactId>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.graalvm.buildtools</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+						<version>${native-buildtools.version}</version>
+						<extensions>true</extensions>
+						<executions>
+							<execution>
+								<id>build-native</id>
+								<phase>package</phase>
+								<goals>
+									<goal>build</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<imageName>rest-service-demo-pgo</imageName>
+							<buildArgs>
+							<!-- G1 is supported on Linux only, comment out next line if on another platform -->
+								<buildArg>--gc=G1</buildArg>
+								<buildArg>--pgo=${project.basedir}/default.iprof</buildArg>
+							</buildArgs>
+                        </configuration>
+					</plugin>
+					<plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>static</id>
+			<properties>
+				<repackage.classifier>exec</repackage.classifier>
+				<native-buildtools.version>0.9.14</native-buildtools.version>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.junit.platform</groupId>
+					<artifactId>junit-platform-launcher</artifactId>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.graalvm.buildtools</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+						<version>${native-buildtools.version}</version>
+						<extensions>true</extensions>
+						<executions>
+							<execution>
+								<id>build-native</id>
+								<phase>package</phase>
+								<goals>
+									<goal>build</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<imageName>rest-service-demo-static</imageName>
+							<buildArgs>
+								<!-- Static -->
+								<buildArg>--static</buildArg>
+								<buildArg>--libc=musl</buildArg>
+							</buildArgs>
+                        </configuration>
+					</plugin>
+					<plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </plugin>
+				</plugins>
+			</build>
+		</profile>
+    </profiles>
+</project>

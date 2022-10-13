@@ -1,0 +1,162 @@
+version: '2.4'
+
+# volumes:
+#     prometheus_data:
+#     grafana_data:
+
+services:
+
+  # Apps
+  rest-service-demo-jvm:
+    image: localhost/rest-service-demo:jvm
+#    restart: always
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpu_count: 4
+    cpu_percent: 100
+    cpus: 4
+    container_name: rest-service-demo-jvm
+    command:
+      - "java"
+      - "-jar"
+      - "app.jar"
+      - '-Xms64m'
+      - '-Xmx64m'
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8081:8080"
+  rest-service-demo-native:
+    image: localhost/rest-service-demo:native
+#    restart: 
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpu_count: 4
+    cpu_percent: 100
+    cpus: 4
+    container_name: rest-service-demo-native
+    command:
+      - '-Xms64m'
+      - '-Xmx64m'
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8082:8080"
+  rest-service-demo-upx:
+    image: localhost/rest-service-demo:upx
+#    restart: never
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpu_count: 4
+    cpu_percent: 100
+    cpus: 4
+    container_name: rest-service-demo-upx
+    command:
+      - '-Xms64m'
+      - '-Xmx64m'
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8083:8080"
+  rest-service-demo-distroless:
+    image: localhost/rest-service-demo:distroless
+#    restart: never
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpu_count: 4
+    cpu_percent: 100
+    cpus: 4
+    container_name: rest-service-demo-distroless
+    command:
+      - '-Xms64m'
+      - '-Xmx64m'
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8084:8080"
+  rest-service-demo-jlink:
+    image: localhost/rest-service-demo:jlink
+#    restart: always
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpu_count: 4
+    cpu_percent: 100
+    cpus: 4
+    container_name: rest-service-demo-jlink
+    command:
+      - "java"
+      - "-jar"
+      - "app.jar"
+      - '-Xms64m'
+      - '-Xmx64m'
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8085:8080"
+  rest-service-demo-pgo:
+    image: localhost/rest-service-demo:pgo
+#    restart: never
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpu_count: 4
+    cpu_percent: 100
+    cpus: 4
+    container_name: rest-service-demo-pgo
+    command:
+      - '-Xms64m'
+      - '-Xmx64m'
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8086:8080"
+  rest-service-demo-static:
+    image: localhost/rest-service-demo:static
+#    restart: never
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpu_count: 4
+    cpu_percent: 100
+    cpus: 4
+    container_name: rest-service-demo-static
+    command:
+      - '-Xms64m'
+      - '-Xmx64m'
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8087:8080"
+      
+  # Reporting & Metrics
+
+  ## Prometheus
+  # prom:
+  #   image: prom/prometheus
+  #   container_name: prometheus
+  #   volumes:
+  #     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #     - '--web.console.libraries=/etc/prometheus/console_libraries'
+  #     - '--web.console.templates=/etc/prometheus/consoles'
+  #     - '--web.enable-lifecycle'
+  #     - '--web.enable-admin-api'
+  #   ports:
+  #     - "9090:9090"
+
+  # ## CAdvisor
+  # cadvisor:
+  #   image: gcr.io/cadvisor/cadvisor:v0.42.0
+  #   container_name: cadvisor
+  #   privileged: true
+  #   devices:
+  #     - /dev/kmsg:/dev/kmsg
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:ro
+  #     - /sys:/sys:ro
+  #     - /var/lib/docker:/var/lib/docker:ro
+  #     - /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
+  #   restart: unless-stopped
+  #   ports:
+  #     - 9099:8080

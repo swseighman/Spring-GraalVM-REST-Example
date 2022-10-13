@@ -1,0 +1,11 @@
+[
+  {
+    "interfaces":["org.springframework.boot.context.properties.ConfigurationProperties","org.springframework.core.annotation.SynthesizedAnnotation"]}
+  ,
+  {
+    "interfaces":["org.springframework.web.bind.annotation.RequestMapping","org.springframework.core.annotation.SynthesizedAnnotation"]}
+  ,
+  {
+    "interfaces":["org.springframework.web.bind.annotation.RequestParam","org.springframework.core.annotation.SynthesizedAnnotation"]}
+  
+]

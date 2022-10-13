@@ -1,0 +1,33 @@
+FROM container-registry.oracle.com/graalvm/native-image-ee:latest as graalvm
+
+RUN microdnf -y install wget unzip zip findutils tar
+
+COPY . /home/app/restservice
+WORKDIR /home/app/restservice
+
+RUN \
+    # Install SDKMAN
+    curl -s "https://get.sdkman.io" | bash; \
+    source "$HOME/.sdkman/bin/sdkman-init.sh"; \
+    # Install Maven
+    sdk install maven; \
+    mvn package -Pnative -DskipTests
+    # # Install Gradle
+    # sdk install gradle; \
+    # gradle nativeCompile
+
+FROM container-registry.oracle.com/os/oraclelinux:8-slim
+
+EXPOSE 8080
+
+# For Maven build
+COPY --from=graalvm /home/app/restservice/target/rest-service-demo rest-service-demo
+
+# # For Gradle build
+# COPY --from=graalvm build/native/nativeCompile/rest-service-demo rest-service-demo
+
+ENTRYPOINT ["/rest-service-demo"]
+
+# Build and run:
+# docker build -f ./Dockerfile.stage -t localhost/rest-service-demo:stage .
+# docker run --rm -p 8080:8080 localhost/rest-service-demo:stage

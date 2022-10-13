@@ -1,0 +1,12 @@
+FROM scratch
+
+EXPOSE 8080
+
+ADD tmp.tar /
+
+COPY target/rest-service-demo-static /app
+ENTRYPOINT ["/app"]
+
+# Build and run:
+# docker build -f ./Dockerfile.static -t localhost/rest-service-demo:static .
+# docker run --rm -p 8080:8080 localhost/rest-service-demo:static
