@@ -6,6 +6,8 @@ Java 17 is used for this example, specifically GraalVM 22.2.0.1 and the `native-
 
 If you intend on creating containers, `docker` or `podman` is required.
 
+**Optional**
+
 We'll use `termgraph` for visualizations in this example.  Since `termgraph` requires Python, it may be helpful to setup a Python virtual environment to install the necessary tools.
 
 First, check your Python version (3.9 is recommended):
@@ -96,45 +98,12 @@ Next, build the native image executable using the configuration files:
 (demo-env) $ mvn -Pnative -Dagent=true -DskipTests package
 ```
 
-
-```
-(demo-env) $ docker-compose up
-```
-
-Browse to `localhost:8080/greeting`, where you should see:
-
-```
-{"id":1,"content":"Hello, World!"}
-```
-
-Or `curl http://localhost:8080/greeting`.
-
-#### Building a Native Image Executable
-
-We can build a standalone native image executable using the `native` profile which we can add to our custom containers later in this lab. Let's build a native executable:
-
-```
-(demo-env) $ mvn package -Pnative
-```
->If you're using **Gradle**, execute the following command to build the native image executable:
->```
->./gradlew nativeCompile
->```
-
-The result will produce a native image executable.
-
->**NOTE:** Depending on your OS distribution, you may need to install some additional packages.  For example, with Oracle Linux/RHEL/Fedora distributions, I recommend installing the `Development Tools` to cover all of the dependencies you'll need to compile a native executable.  *You would also add this option in the appropriate Dockerfile.*
->
->```
->$ sudo dnf group install "Development Tools"
->```
-
 To run the native executable application, execute the following:
 
 ```
 (demo-env) $ target/rest-service-demo
 ...<snip>
-2022-04-04 11:27:58.076  INFO 27055 --- [           main] c.e.restservice.RestServiceApplication   : Started RestServiceApplication in 0.03 seconds (JVM running for 0.032)
+2022-04-04 11:27:58.076  INFO 27055 --- [           main] c.e.restservice.RestServiceApplication   : Started RestServiceApplication in 0.026 seconds (JVM running for 0.027)
 ```
 
 #### Building a Static Native Image (x64 Linux only)
