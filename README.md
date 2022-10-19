@@ -210,6 +210,12 @@ a8e45684e8f3   localhost/rest-service-demo:pgo          "/app -Xms64m -Xmx64m"  
 66e4f93d3dab   localhost/rest-service-demo:distroless   "/app -Xms64m -Xmx64m"   8 hours ago   Up 8 hours   0.0.0.0:8084->8080/tcp   rest-service-demo-distroless
 ```
 
+To stop the containers, execute:
+
+```
+(demo-env) $ docker-compose down
+```
+
 
 #### Compressing the Native Image Executable
 

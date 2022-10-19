@@ -11,6 +11,7 @@ COMPRESSED_IMG_SIZE=`docker inspect -f "{{ .Size }}" localhost/rest-service-demo
 
 # Chart of the image sizes
 echo "JDK-Container ${JDK_IMG_SIZE}
+    JLink-Container ${JLINK_IMG_SIZE}
     PGO-Container ${NATIVEPGO_IMG_SIZE}
     Native-Container ${NATIVE_IMG_SIZE}
     Compressed-Container ${COMPRESSED_IMG_SIZE}
