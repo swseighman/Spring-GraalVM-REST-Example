@@ -11,6 +11,9 @@
       "pattern":"\\QMETA-INF/spring.components\\E"
     }, 
     {
+      "pattern":"\\Qapplication.properties\\E"
+    }, 
+    {
       "pattern":"\\Qcom/example/restservice/RestServiceApplication.class\\E"
     }, 
     {

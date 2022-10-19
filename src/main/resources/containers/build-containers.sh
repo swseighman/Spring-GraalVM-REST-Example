@@ -5,6 +5,9 @@ docker login container-registry.oracle.com
 docker build -f ./Dockerfile.jvm -t localhost/rest-service-demo:jvm . > /dev/null 2>&1
 echo -ne "Building JVM container ... "
 echo "Done."
+docker build -f ./Dockerfile.jlink -t localhost/rest-service-demo:jlink . > /dev/null 2>&1
+echo -ne "Building jlink container ... "
+echo "Done."
 docker build -f ./Dockerfile.native -t localhost/rest-service-demo:native . > /dev/null 2>&1
 echo -ne "Building Native Image container ... "
 echo "Done."
@@ -27,3 +30,4 @@ echo ""
 echo "Build complete!"
 echo ""
 echo "See README for instructions on how to run the application and individual containers."
+echo ""

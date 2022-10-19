@@ -62,12 +62,6 @@ Now change directory to the new project:
 (demo-env) $ cd Spring-GraalVM-REST-Example
 ```
 
-> **NOTE:** As an alternative to executing the following commands manually, there is a build script (`build.sh`) provided to build the project, create native image executables and build the container images.  Simply run:
->```
->./build.sh
->```
-> Depending on your choice of build tools (Maven/Gradle), you will need to edit the script and comment/uncomment lines to accommodate your use case.
-
 To build the project, execute:
 ```
 (demo-env) $ mvn clean package
@@ -106,13 +100,32 @@ To run the native executable application, execute the following:
 2022-04-04 11:27:58.076  INFO 27055 --- [           main] c.e.restservice.RestServiceApplication   : Started RestServiceApplication in 0.026 seconds (JVM running for 0.027)
 ```
 
+#### Building a PGO Executable
+
+You can optimize this native executable even more for additional performance gain and higher throughput by applying Profile-Guided Optimizations (PGO).
+
+With PGO you can collect the profiling data in advance and then feed it to the `native-image` tool, which will use this information to optimize the performance of the resulting binary.
+
+>**Note:** PGO is available with GraalVM Enterprise Edition only.
+
+First, we'll build an instrumented native executable using the following command: 
+```
+(demo-env) $ mvn -Ppgo-inst -DskipTests package
+```
+Next, we'll build an optimized native executable (using the `pom.xml` profile to specify the path to the collected profile information):
+```
+(demo-env) $ mvn -Ppgo -DskipTests package
+```
+
+
+
 #### Building a Static Native Image (x64 Linux only)
 
 See [instructions](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/StaticImages/) for building and installing the required libraries.
 
 After the process has been completed, copy `$ZLIB_DIR/libz.a` to `$GRAALVM_HOME/lib/static/linux-amd64/musl/`
 
-Also add `x86_64-linux-musl-native/bin/x86_64-linux-musl-gcc` to your PATH.
+Also add `x86_64-linux-musl-native/bin/` to your PATH.
 
 Then execute:
 ```
@@ -132,7 +145,7 @@ Within this repository, there are a few examples of deploying applications in va
 For example, to build the JAR version:
 
 ```
-(demo-env) $ docker build -f Dockerfile.jvm -t localhost/rest-service-demo:jvm .
+(demo-env) $ docker build -f src/main/resources/containers/Dockerfile.jvm -t localhost/rest-service-demo:jvm .
 ```
 
 ```
@@ -229,6 +242,32 @@ Our native image container is now **121 MB** (versus the uncompressed version at
 localhost/rest-service-demo   upx            7d43ba8808df   26 hours ago    121MB
 localhost/rest-service-demo   native         18772054f07d   26 hours ago    154MB
 ```
+
+#### Enabling JDK Flight Recorder (JDK 11 Only)
+
+To build a native image with the JFR events support, you first need to include JFR at image build time. Execute the following command:
+
+```
+(demo-env) $ native-image -H:+AllowVMInspection target/rest-service-demo
+```
+
+>**NOTE:** Beginning with GraalVM 22.3, use the following command too enable JFR:
+> ```
+> native-image --enable-monitoring=jfr target/rest-service-demo
+>```
+
+To enable JFR and start a recording, execute the following command:
+```
+(demo-env) $ target/rest-service-demo -XX:+FlightRecorder -XX:StartFlightRecording="filename=recording.jfr"
+```
+
+Currently, JFR support includes these limitations:
+* JFR events recording is not supported on GraalVM distribution for Windows.
+* JFR is only supported with native executables built on **GraalVM JDK 11**.
+
+
+See the [docs](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/debugging-and-diagnostics/JFR/) for additional information.
+
 
 #### Viewing Project Metrics
 
