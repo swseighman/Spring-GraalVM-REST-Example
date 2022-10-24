@@ -1,1 +1,15 @@
+pluginManagement {
+	plugins {
+        id 'org.graalvm.buildtools.native' version '0.12.1'
+    }
+	repositories {
+		mavenLocal()
+		maven { url 'https://repo.spring.io/release' }
+		maven { url 'https://repo.spring.io/milestone' }
+		maven { url 'https://repo.spring.io/snapshot' }
+		gradlePluginPortal()
+		mavenCentral()
+	}
+}
+
 rootProject.name = 'rest-service'

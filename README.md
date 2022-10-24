@@ -112,7 +112,14 @@ First, we'll build an instrumented native executable using the following command
 ```
 (demo-env) $ mvn -Ppgo-inst -DskipTests package
 ```
-Next, we'll build an optimized native executable (using the `pom.xml` profile to specify the path to the collected profile information):
+
+Next, you'll need to run the newly created instrumented app to generate the profile information:
+
+```
+(demo-env) $  target/rest-service-demo-pgoinst
+```
+
+Finally, we'll build an optimized native executable (using the `pom.xml` profile to specify the path to the collected profile information):
 ```
 (demo-env) $ mvn -Ppgo -DskipTests package
 ```
@@ -157,6 +164,14 @@ Browse to `localhost:8080/greeting`, where you should see:
 ```
 {"id":1,"content":"Hello, World!"}
 ```
+
+Or browse to `http://localhost:8080/greeting?name=User`
+
+You should see:
+```
+{"id":12,"content":"Hello, User!"}
+```
+
 
 You can repeat these steps for each container option:
 

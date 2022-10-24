@@ -1,22 +1,77 @@
 plugins {
-	id 'org.springframework.boot' version '2.7.1'
+	id 'org.springframework.boot' version '2.7.4'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'org.springframework.experimental.aot' version '0.12.1'
+	id 'org.graalvm.buildtools.native' version '0.9.14'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
+description = 'rest-service-demo'
 sourceCompatibility = '17'
 
 repositories {
 	mavenCentral()
+	mavenLocal()
+	maven { url 'https://repo.spring.io/release' }
+	maven { url 'https://repo.spring.io/milestone' }
+	maven { url 'https://repo.spring.io/snapshot' }
+	mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.experimental:spring-native:0.12.1'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
+	testImplementation 'org.junit.platform:junit-platform-launcher'
 }
 
 test {
 	useJUnitPlatform()
+}
+
+// test { 
+//   jvmArgs -agentlib:native-image-agent=access-filter-file=access-filter.json,config-output-dir=target/classes/META-INF/native-image
+// }
+
+// Configuration used by Spring AOT plugin to generate the native image configurations.
+springAot {
+	println "Printing tracing agent boolean value= " + System.getenv('tracing')
+	if(System.getenv('tracing') == 'true'){
+		mode = AotMode.NATIVE_AGENT
+	} else {
+		// default mode is NATIVE
+		mode = AotMode.NATIVE
+	}
+	// Which main class to use
+	mainClass='com.example.restservice.RestServiceApplication'
+	// Removing YAML support
+	removeYamlSupport = true
+	// Need XML support for handling results in native image
+	removeXmlSupport = false
+	// Remove JMX Support
+	removeJmxSupport = true
+}
+
+// Configuration used by GraalVM native image compiler while building native image.
+graalvmNative {
+	metadataRepository {
+        enabled = true
+    }
+	binaries {
+		main {
+			// Main options
+			debug = true // Determines if debug info should be generated, defaults to false
+			verbose = true // Add verbose output, defaults to false
+			fallback = false // Sets the fallback mode of native-image, defaults to false
+			buildArgs.add('--gc=G1')
+			buildArgs.add('--enable-monitoring=jfr')
+			buildArgs.add('-H:+ReportExceptionStackTraces')
+			buildArgs.add('-Ob')
+		}
+	}
 }
