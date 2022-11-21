@@ -1,3 +1,0 @@
-[EXECUTABLE]
-rest-service-demo
-
