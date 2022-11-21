@@ -2,7 +2,11 @@
 
 #### Prerequisites
 
-Java 17 is used for this example, specifically GraalVM 22.2.0.1 and the `native-image` module.
+Java 17 is used for this example, specifically GraalVM 22.3.0 and the `native-image` module.
+
+Spring Boot 3.0.0-RC2 with native support.
+
+Oracle Linux 9 was used as the underlying OS.
 
 If you intend on creating containers, `docker` or `podman` is required.
 
@@ -69,7 +73,7 @@ To build the project, execute:
 
 The `pom.xml` file contains configuration parameters (*via the GraalVM Native Image Build Tools for Maven plugin*) for the Tracing Agent. The following command will run unit tests and enable the Tracing Agent, thus generating the Tracing Agent configuration for your application:
 ```
-(demo-env) $ mvn -Pnative -DskipNativeTests=true -DskipNativeBuild=true -Dagent=true test
+(demo-env) $ mvn -Pnative native:compile -DskipNativeTests=true -DskipNativeBuild=true -Dagent=true test
 
 ```
 
@@ -89,7 +93,7 @@ drwxrwxr-x 2 sseighma sseighma  4096 Oct 13 13:19 agent-extracted-predefined-cla
 
 Next, build the native image executable using the configuration files:
 ```
-(demo-env) $ mvn -Pnative -Dagent=true -DskipTests package
+(demo-env) $ mvn -Pnative native:compile -Dagent=true -DskipTests package
 ```
 
 To run the native executable application, execute the following:
