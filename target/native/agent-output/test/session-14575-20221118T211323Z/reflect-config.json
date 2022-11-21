@@ -1,0 +1,139 @@
+[
+{
+  "name":"[Lorg.springframework.util.ConcurrentReferenceHashMap$Segment;"
+},
+{
+  "name":"com.example.restservice.GreetingControllerTests",
+  "allDeclaredFields":true,
+  "allDeclaredClasses":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "queryAllDeclaredConstructors":true
+},
+{
+  "name":"java.io.FilePermission"
+},
+{
+  "name":"java.lang.RuntimePermission"
+},
+{
+  "name":"java.net.NetPermission"
+},
+{
+  "name":"java.net.SocketPermission"
+},
+{
+  "name":"java.net.URLPermission",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String","java.lang.String"] }]
+},
+{
+  "name":"java.security.AllPermission"
+},
+{
+  "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.security.SecurityPermission"
+},
+{
+  "name":"java.util.PropertyPermission"
+},
+{
+  "name":"javax.smartcardio.CardPermission"
+},
+{
+  "name":"kotlin$Metadata"
+},
+{
+  "name":"kotlin.Metadata"
+},
+{
+  "name":"kotlin.reflect.full$KClasses"
+},
+{
+  "name":"kotlin.reflect.full.KClasses"
+},
+{
+  "name":"org.apache.logging.log4j.spi.ExtendedLogger"
+},
+{
+  "name":"org.apache.logging.slf4j.SLF4JProvider"
+},
+{
+  "name":"org.apache.maven.surefire.junitplatform.JUnitPlatformProvider",
+  "methods":[{"name":"<init>","parameterTypes":["org.apache.maven.surefire.providerapi.ProviderParameters"] }]
+},
+{
+  "name":"org.apiguardian.api.API",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.junit.jupiter.api.Test",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.junit.jupiter.api.extension.ExtendWith",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.junit.platform.commons.annotation.Testable",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.slf4j.spi.LocationAwareLogger"
+},
+{
+  "name":"org.springframework.boot.autoconfigure.ImportAutoConfiguration",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.springframework.boot.test.autoconfigure.ConditionReportApplicationContextFailureProcessor",
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.springframework.boot.test.autoconfigure.properties.PropertyMapping",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.springframework.boot.test.context.SpringBootTest",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.springframework.context.annotation.Import",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.springframework.test.context.BootstrapWith",
+  "queryAllPublicMethods":true
+},
+{
+  "name":"org.springframework.test.context.aot$AotTestContextInitializers__Generated"
+},
+{
+  "name":"org.springframework.test.context.aot.AotTestContextInitializers__Generated"
+},
+{
+  "name":"org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.springframework.test.context.junit.jupiter.SpringExtension",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.springframework.test.context.web.WebAppConfiguration"
+},
+{
+  "name":"sun.security.provider.NativePRNG",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]

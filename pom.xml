@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.4</version>
+		<version>3.0.0-RC2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
@@ -15,8 +15,7 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
-		<spring-native.version>0.12.1</spring-native.version>
-		<native.maven.plugin.version>0.9.14</native.maven.plugin.version>
+		<native.maven.plugin.version>0.9.17</native.maven.plugin.version>
 	</properties>
 	
 	<dependencies>
@@ -55,12 +54,6 @@
 			<artifactId>micrometer-registry-prometheus</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.experimental</groupId>
-			<artifactId>spring-native</artifactId>
-			<version>0.12.1</version>
-		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -69,6 +62,14 @@
 			<name>Spring release</name>
 			<url>https://repo.spring.io/release</url>
 		</repository>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 
 	<pluginRepositories>
@@ -76,6 +77,14 @@
 			<id>spring-release</id>
 			<name>Spring release</name>
 			<url>https://repo.spring.io/release</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
 
@@ -86,130 +95,32 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>org.springframework.experimental</groupId>
-				<artifactId>spring-aot-maven-plugin</artifactId>
-				<version>${spring-native.version}</version>
-				<executions>
-					<execution>
-						<id>generate</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>test-generate</id>
-						<goals>
-							<goal>test-generate</goal>
-						</goals>
-					</execution>
-				</executions>
+				<groupId>org.graalvm.buildtools</groupId>
+				<artifactId>native-maven-plugin</artifactId>
+				<version>${native.maven.plugin.version}</version>
+				<configuration>
+					<imageName>${project.artifactId}</imageName>
+					<mainClass>${exec.mainClass}</mainClass>
+					<buildArgs>
+						<!-- Quick build mode is enabled  -->
+						<buildArg>-Ob</buildArg>
+						<!-- G1 is supported on Linux only, comment out next line if on another platform -->
+						<buildArg>--gc=G1</buildArg>
+						<!-- Enable JFR support -->
+						<buildArg>--enable-monitoring=jfr</buildArg>
+						<!-- Show exception stack traces for exceptions during image building -->
+						<buildArg>-H:+ReportExceptionStackTraces</buildArg>
+					</buildArgs>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
 
 	<profiles>
 		<profile>
-			<id>native</id>
-            <build>
-                <plugins>
-					<!--
-						Copy over any tracing agent config generated when we run the tracing agent against the tests
-					-->
-					<plugin>
-						<artifactId>maven-resources-plugin</artifactId>
-						<version>3.0.2</version>
-						<executions>
-							<execution>
-								<id>copy-agent-config</id>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>copy-resources</goal>
-								</goals>
-								<configuration>
-									<!-- The tracing agent config needs to be placed here to be picked up
-											by the native-image tool -->
-									<outputDirectory>src/main/resources/META-INF/native-image</outputDirectory>
-									<resources>
-										<resource>
-											<!-- The location that the native build tools will write the tracing agent
-													config out to -->
-											<directory>${basedir}/target/native/agent-output/test</directory>
-										</resource>
-									</resources>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.graalvm.buildtools</groupId>
-						<artifactId>native-maven-plugin</artifactId>
-						<version>${native.maven.plugin.version}</version>
-						<!-- Enables JUnit Test Support -->
-						<extensions>true</extensions>
-						<executions>
-							<!-- Binds to the package phase - causes the native binary to be created when we run, mvn -Pnative package -->
-							<execution>
-								<id>build-native</id>
-								<goals>
-									<goal>build</goal>
-								</goals>
-								<phase>package</phase>
-							</execution>
-							<!-- Binds to the test phase - causes the JUnit tests to be run as native code when we run, mvn -Pnative test -->
-							<execution>
-								<id>test-native</id>
-								<goals>
-									<goal>test</goal>
-								</goals>
-								<phase>test</phase>
-							</execution>
-						</executions>
-	                    <!-- This section is used to configure how the native image build happens -->
-						<configuration>
-							<imageName>rest-service-demo</imageName>
-							<!-- Tracing Agent Configuration -->
-							<agent>
-								<!-- Shared options -->
-								<options>
-									<option>experimental-class-loader-support</option>
-								</options>
-								<!-- Test options -->
-								<options name="test">
-									<!-- Uses an access filter when running the Tracing Agent -->
-									<option>access-filter-file=${basedir}/src/test/resources/access-filter.json</option>
-								</options>
-							</agent>
-							<buildArgs>
-								<!-- Quick build mode is enabled  -->
-								<buildArg>-Ob</buildArg>
-								<!-- G1 is supported on Linux only, comment out next line if on another platform -->
-								<buildArg>--gc=G1</buildArg>
-								<!-- Enable JFR support < 22.3.0  -->
-								<!-- <buildArg>-H:+AllowVMInspection</buildArg> -->
-								<!-- Enable JFR support >= 22.3.0  -->
-								<buildArg>--enable-monitoring=jfr</buildArg>
-								<!-- Show exception stack traces for exceptions during image building -->
-								<buildArg>-H:+ReportExceptionStackTraces</buildArg>
-							</buildArgs>
-						</configuration>
-					</plugin>
-					<!-- Avoid a clash between Spring Boot repackaging and native-maven-plugin -->
-                    <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <configuration>
-                            <classifier>exec</classifier>
-                        </configuration>
-                    </plugin>
-				</plugins>
-			</build>
-		</profile>
-		<!-- Build a PGO instrumented version -->	
-		<profile>
 			<id>pgo-inst</id>
 			<properties>
 				<repackage.classifier>exec</repackage.classifier>
-				<native-buildtools.version>0.9.14</native-buildtools.version>
 			</properties>
 			<dependencies>
 				<dependency>
@@ -223,7 +134,7 @@
 					<plugin>
 						<groupId>org.graalvm.buildtools</groupId>
 						<artifactId>native-maven-plugin</artifactId>
-						<version>${native-buildtools.version}</version>
+						<version>${native.maven.plugin.version}</version>
 						<extensions>true</extensions>
 						<executions>
 							<execution>
@@ -253,12 +164,12 @@
 				</plugins>
 			</build>
 		</profile>
+		
 		<!-- Run the newly created instrumented native executable BEFORE building the PGO version with this profile -->
 		<profile>
 			<id>pgo</id>
 			<properties>
 				<repackage.classifier>exec</repackage.classifier>
-				<native-buildtools.version>0.9.14</native-buildtools.version>
 			</properties>
 			<dependencies>
 				<dependency>
@@ -272,7 +183,7 @@
 					<plugin>
 						<groupId>org.graalvm.buildtools</groupId>
 						<artifactId>native-maven-plugin</artifactId>
-						<version>${native-buildtools.version}</version>
+						<version>${native.maven.plugin.version}</version>
 						<extensions>true</extensions>
 						<executions>
 							<execution>
@@ -302,11 +213,12 @@
 				</plugins>
 			</build>
 		</profile>
+		
 		<profile>
 			<id>static</id>
 			<properties>
 				<repackage.classifier>exec</repackage.classifier>
-				<native-buildtools.version>0.9.14</native-buildtools.version>
+				<version>${native.maven.plugin.version}</version>
 			</properties>
 			<dependencies>
 				<dependency>
@@ -350,5 +262,5 @@
 				</plugins>
 			</build>
 		</profile>
-    </profiles>
+	</profiles>
 </project>

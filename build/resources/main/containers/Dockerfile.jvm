@@ -1,0 +1,15 @@
+FROM container-registry.oracle.com/java/openjdk:17-oraclelinux8
+
+EXPOSE 8080
+
+# For Maven build
+COPY target/rest-service-demo-0.0.1-SNAPSHOT-exec.jar app.jar
+
+# # For Gradle build
+# COPY build/libs/rest-service-demo-0.0.1-SNAPSHOT.jar app.jar
+
+CMD ["java","-jar","app.jar"]
+
+# Build and run:
+# docker build -f ./Dockerfile.jvm -t localhost/rest-service-demo:jvm .
+# docker run --rm -p 8080:8080 localhost/rest-service-demo:jvm

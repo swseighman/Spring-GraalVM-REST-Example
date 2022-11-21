@@ -1,0 +1,3 @@
+[EXECUTABLE]
+rest-service-demo
+
