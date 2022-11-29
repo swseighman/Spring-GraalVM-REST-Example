@@ -140,7 +140,7 @@ Also add `x86_64-linux-musl-native/bin/` to your PATH.
 
 Then execute:
 ```
-(demo-env) $ mvn package -Pstatic
+(demo-env) $ mvn -Pstatic -DskipTests package
 ```
 
 To run the static native executable application, execute the following:

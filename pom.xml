@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.0-RC2</version>
+		<version>3.0.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
@@ -15,7 +15,7 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
-		<native.maven.plugin.version>0.9.17</native.maven.plugin.version>
+		<!-- <native-buildtools.version>0.9.17</native-buildtools.version> -->
 	</properties>
 	
 	<dependencies>
@@ -97,7 +97,6 @@
 			<plugin>
 				<groupId>org.graalvm.buildtools</groupId>
 				<artifactId>native-maven-plugin</artifactId>
-				<version>${native.maven.plugin.version}</version>
 				<configuration>
 					<imageName>${project.artifactId}</imageName>
 					<mainClass>${exec.mainClass}</mainClass>
@@ -134,7 +133,6 @@
 					<plugin>
 						<groupId>org.graalvm.buildtools</groupId>
 						<artifactId>native-maven-plugin</artifactId>
-						<version>${native.maven.plugin.version}</version>
 						<extensions>true</extensions>
 						<executions>
 							<execution>
@@ -148,6 +146,8 @@
 						<configuration>
 							<imageName>rest-service-demo-pgoinst</imageName>
 							<buildArgs>
+								<!-- Quick build mode is enabled  -->
+								<buildArg>-Ob</buildArg>
 								<!-- G1 is supported on Linux only, comment out next line if on another platform -->
 								<buildArg>--gc=G1</buildArg>
 								<buildArg>--pgo-instrument</buildArg>
@@ -183,7 +183,6 @@
 					<plugin>
 						<groupId>org.graalvm.buildtools</groupId>
 						<artifactId>native-maven-plugin</artifactId>
-						<version>${native.maven.plugin.version}</version>
 						<extensions>true</extensions>
 						<executions>
 							<execution>
@@ -197,6 +196,8 @@
 						<configuration>
 							<imageName>rest-service-demo-pgo</imageName>
 							<buildArgs>
+								<!-- Quick build mode is enabled  -->
+								<buildArg>-Ob</buildArg>
 								<!-- G1 is supported on Linux only, comment out next line if on another platform -->
 								<buildArg>--gc=G1</buildArg>
 								<buildArg>--pgo=${project.basedir}/default.iprof</buildArg>
@@ -232,7 +233,6 @@
 					<plugin>
 						<groupId>org.graalvm.buildtools</groupId>
 						<artifactId>native-maven-plugin</artifactId>
-						<version>${native-buildtools.version}</version>
 						<extensions>true</extensions>
 						<executions>
 							<execution>
