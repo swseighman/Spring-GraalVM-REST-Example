@@ -2,11 +2,17 @@
 
 #### Prerequisites
 
-Java 17 is used for this example, specifically GraalVM 22.3.0 and the `native-image` module.
+Java 17 is used for this example, specifically GraalVM 22.3.0 and the `native-image` module. You can install GraalVM with native image support using a single line:
+
+```
+$ bash <(curl -sL https://get.graalvm.org/jdk)
+```
+
+More download info is [here](https://medium.com/p/91ee8d4e6ffd).
 
 Spring Boot 3.0.0 with native support.
 
-Oracle Linux 9 was used as the underlying OS.
+Oracle Linux 9 `(x86_64)` was used as the underlying OS as some features are only available on `x86_64` platforms.
 
 If you intend on creating containers, `docker` or `podman` is required.
 
