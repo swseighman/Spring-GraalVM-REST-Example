@@ -121,13 +121,6 @@
 			<properties>
 				<repackage.classifier>exec</repackage.classifier>
 			</properties>
-			<!-- <dependencies>
-				<dependency>
-					<groupId>org.junit.platform</groupId>
-					<artifactId>junit-platform-launcher</artifactId>
-					<scope>test</scope>
-				</dependency>
-			</dependencies> -->
 			<build>
 				<plugins>
 					<plugin>
@@ -145,6 +138,7 @@
 						</executions>
 						<configuration>
 							<imageName>rest-service-demo-pgoinst</imageName>
+							<mainClass>${exec.mainClass}</mainClass>
 							<buildArgs>
 								<!-- Quick build mode is enabled  -->
 								<buildArg>-Ob</buildArg>
@@ -171,13 +165,6 @@
 			<properties>
 				<repackage.classifier>exec</repackage.classifier>
 			</properties>
-			<!-- <dependencies>
-				<dependency>
-					<groupId>org.junit.platform</groupId>
-					<artifactId>junit-platform-launcher</artifactId>
-					<scope>test</scope>
-				</dependency>
-			</dependencies> -->
 			<build>
 				<plugins>
 					<plugin>
@@ -195,6 +182,7 @@
 						</executions>
 						<configuration>
 							<imageName>rest-service-demo-pgo</imageName>
+							<mainClass>${exec.mainClass}</mainClass>
 							<buildArgs>
 								<!-- Quick build mode is enabled  -->
 								<buildArg>-Ob</buildArg>
