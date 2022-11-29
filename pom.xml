@@ -137,7 +137,7 @@
 						</executions>
 						<configuration>
 							<imageName>rest-service-demo-pgoinst</imageName>
-							<mainClass>${exec.mainClass}</mainClass>
+							<!-- <mainClass>${exec.mainClass}</mainClass> -->
 							<buildArgs>
 								<!-- Quick build mode is enabled  -->
 								<buildArg>-Ob</buildArg>
@@ -181,7 +181,7 @@
 						</executions>
 						<configuration>
 							<imageName>rest-service-demo-pgo</imageName>
-							<mainClass>${exec.mainClass}</mainClass>
+							<!-- <mainClass>${exec.mainClass}</mainClass> -->
 							<buildArgs>
 								<!-- Quick build mode is enabled  -->
 								<buildArg>-Ob</buildArg>

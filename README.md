@@ -4,7 +4,7 @@
 
 Java 17 is used for this example, specifically GraalVM 22.3.0 and the `native-image` module.
 
-Spring Boot 3.0.0-RC2 with native support.
+Spring Boot 3.0.0 with native support.
 
 Oracle Linux 9 was used as the underlying OS.
 
@@ -116,6 +116,17 @@ First, we'll build an instrumented native executable using the following command
 ```
 (demo-env) $ mvn -Ppgo-inst -DskipTests package
 ```
+
+>**NOTE:** If you encounter the following error:
+>
+>```
+>Error: Main entry point class 'com.example.restservice.RestServiceApplication' neither found on the classpath nor on the modulepath.
+>```
+>
+>comment out the following line in the `<configuration>` section:
+>```
+><mainClass>${exec.mainClass}</mainClass>
+>```
 
 Next, you'll need to run the newly created instrumented app to generate the profile information:
 
