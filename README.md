@@ -2,11 +2,17 @@
 
 #### Prerequisites
 
-Java 17 is used for this example, specifically GraalVM 22.3.0 and the `native-image` module.
+Java 17 is used for this example, specifically GraalVM 22.3.0 and the `native-image` module. You can install GraalVM with native image support using a single line:
 
-Spring Boot 3.0.0-RC2 with native support.
+```
+$ bash <(curl -sL https://get.graalvm.org/jdk)
+```
 
-Oracle Linux 9 was used as the underlying OS.
+More download info is [here](https://medium.com/p/91ee8d4e6ffd).
+
+Spring Boot 3.0.0 with native support.
+
+Oracle Linux 9 `(x86_64)` was used as the underlying OS as some features are only available on `x86_64` platforms.
 
 If you intend on creating containers, `docker` or `podman` is required.
 
@@ -116,6 +122,17 @@ First, we'll build an instrumented native executable using the following command
 ```
 (demo-env) $ mvn -Ppgo-inst -DskipTests package
 ```
+
+>**NOTE:** If you encounter the following error:
+>
+>```
+>Error: Main entry point class 'com.example.restservice.RestServiceApplication' neither found on the classpath nor on the modulepath.
+>```
+>
+>comment out the following line in the `<configuration>` section:
+>```
+><mainClass>${exec.mainClass}</mainClass>
+>```
 
 Next, you'll need to run the newly created instrumented app to generate the profile information:
 
