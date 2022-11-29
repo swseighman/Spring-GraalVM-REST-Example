@@ -121,13 +121,13 @@
 			<properties>
 				<repackage.classifier>exec</repackage.classifier>
 			</properties>
-			<dependencies>
+			<!-- <dependencies>
 				<dependency>
 					<groupId>org.junit.platform</groupId>
 					<artifactId>junit-platform-launcher</artifactId>
 					<scope>test</scope>
 				</dependency>
-			</dependencies>
+			</dependencies> -->
 			<build>
 				<plugins>
 					<plugin>
@@ -171,13 +171,13 @@
 			<properties>
 				<repackage.classifier>exec</repackage.classifier>
 			</properties>
-			<dependencies>
+			<!-- <dependencies>
 				<dependency>
 					<groupId>org.junit.platform</groupId>
 					<artifactId>junit-platform-launcher</artifactId>
 					<scope>test</scope>
 				</dependency>
-			</dependencies>
+			</dependencies> -->
 			<build>
 				<plugins>
 					<plugin>
@@ -245,6 +245,7 @@
 						</executions>
 						<configuration>
 							<imageName>rest-service-demo-static</imageName>
+							<mainClass>${exec.mainClass}</mainClass>
 							<buildArgs>
 								<!-- Static args -->
 								<buildArg>--static</buildArg>
