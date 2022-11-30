@@ -10,7 +10,7 @@ $ bash <(curl -sL https://get.graalvm.org/jdk)
 
 More download info is [here](https://medium.com/p/91ee8d4e6ffd).
 
-Spring Boot 3.0.0 with native support.
+Spring Boot 3.0.0 with native support (which requires GraalVM 22.3.0).
 
 Oracle Linux 9 `(x86_64)` was used as the underlying OS as some features are only available on `x86_64` platforms.
 
@@ -77,30 +77,13 @@ To build the project, execute:
 (demo-env) $ mvn clean package
 ```
 
-The `pom.xml` file contains configuration parameters (*via the GraalVM Native Image Build Tools for Maven plugin*) for the Tracing Agent. The following command will run unit tests and enable the Tracing Agent, thus generating the Tracing Agent configuration for your application:
-```
-(demo-env) $ mvn -Pnative native:compile -DskipNativeTests=true -DskipNativeBuild=true -Dagent=true test
+To build a native image executable, execute:
 
 ```
-
-To verify the newly created Tracing Agent configuration, execute the following command.
-
-```
-(demo-env) $ ls -l target/native/agent-output/test
-total 52
-drwxrwxr-x 2 sseighma sseighma  4096 Oct 13 13:19 agent-extracted-predefined-classes
--rw-rw-r-- 1 sseighma sseighma   538 Oct 13 13:19 jni-config.json
--rw-rw-r-- 1 sseighma sseighma    64 Oct 13 13:19 predefined-classes-config.json
--rw-rw-r-- 1 sseighma sseighma   448 Oct 13 13:19 proxy-config.json
--rw-rw-r-- 1 sseighma sseighma 27389 Oct 13 13:19 reflect-config.json
--rw-rw-r-- 1 sseighma sseighma   773 Oct 13 13:19 resource-config.json
--rw-rw-r-- 1 sseighma sseighma    51 Oct 13 13:19 serialization-config.json
+$ mvn -Pnative native:compile -DskipTests package
 ```
 
-Next, build the native image executable using the configuration files:
-```
-(demo-env) $ mvn -Pnative native:compile -Dagent=true -DskipTests package
-```
+> NOTE: With the introduction of Spring 3.0, there is a new goal to trigger native image compilation, see more information on Spring 3.0 [here](https://docs.spring.io/spring-boot/docs/3.0.0/reference/html/native-image.html#native-image.developing-your-first-application.native-build-tools.maven).
 
 To run the native executable application, execute the following:
 
@@ -116,7 +99,7 @@ You can optimize this native executable even more for additional performance gai
 
 With PGO you can collect the profiling data in advance and then feed it to the `native-image` tool, which will use this information to optimize the performance of the resulting binary.
 
->**Note:** PGO is available with GraalVM Enterprise Edition only.
+>**NOTE:** PGO is available with GraalVM Enterprise Edition only.
 
 First, we'll build an instrumented native executable using the following command: 
 ```
@@ -169,6 +152,8 @@ To run the static native executable application, execute the following:
 #### Container Options
 
 Within this repository, there are a few examples of deploying applications in various container environments, from distroless to full OS images.  Choose the appropriate version for your use case and build the images.
+
+>NOTE: Spring Boot includes support for Cloud Native Buildpacks to generate a lightweight container containing a native executable.  In this example, we'll build containers outside of the Buildpacks method.
 
 For example, to build the JAR version:
 
@@ -285,28 +270,32 @@ localhost/rest-service-demo   upx            7d43ba8808df   26 hours ago    121M
 localhost/rest-service-demo   native         18772054f07d   26 hours ago    154MB
 ```
 
-#### Enabling JDK Flight Recorder (JDK 11 Only)
+#### Enabling JDK Flight Recorder
 
-To build a native image with the JFR events support, you first need to include JFR at image build time. Execute the following command:
+To build a native image with the JFR events support, you first need to enable JFR at image build time. The `pom.xml` includes parameters to build a native executable with JFR support enabled (in the `<buildArgs`):
 
 ```
-(demo-env) $ native-image -H:+AllowVMInspection target/rest-service-demo
+    <buildArgs>
+	<!-- Quick build mode is enabled  -->
+	<buildArg>-Ob</buildArg>
+	<!-- G1 is supported on Linux only, comment out next line if on another platform -->
+	<buildArg>--gc=G1</buildArg>
+	<!-- Enable JFR support -->
+	<buildArg>--enable-monitoring=jfr</buildArg>
+	<!-- Show exception stack traces for exceptions during image building -->
+	<buildArg>-H:+ReportExceptionStackTraces</buildArg>
+    </buildArgs>
 ```
-
->**NOTE:** Beginning with GraalVM 22.3, use the following command too enable JFR:
-> ```
-> native-image --enable-monitoring=jfr target/rest-service-demo
->```
-
-To enable JFR and start a recording, execute the following command:
+					
+After building the native executable, to enable JFR and start a recording, execute the following command:
 ```
 (demo-env) $ target/rest-service-demo -XX:+FlightRecorder -XX:StartFlightRecording="filename=recording.jfr"
 ```
+You will notice a `recording.jfr` file in the project root directory.  You can import this file into JDK Mission Control or view events via the command line. See more info [here](https://docs.oracle.com/en/java/java-components/jdk-mission-control/8/user-guide/using-jdk-flight-recorder.html#GUID-D38849B6-61C7-4ED6-A395-EA4BC32A9FD6).
+
 
 Currently, JFR support includes these limitations:
 * JFR events recording is not supported on GraalVM distribution for Windows.
-* JFR is only supported with native executables built on **GraalVM JDK 11**.
-
 
 See the [docs](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/debugging-and-diagnostics/JFR/) for additional information.
 
