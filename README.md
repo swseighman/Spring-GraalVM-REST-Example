@@ -103,12 +103,6 @@ Next, build the native image executable using the configuration files:
 (demo-env) $ mvn -Pnative native:compile -Dagent=true -DskipTests package
 ```
 
-To build a native image executable, execute:
-
-```
-$ mvn -Pnative native:compile -DskipTests package
-```
-
 > NOTE: With the introduction of Spring 3.0, there is a new goal to trigger native image compilation, see more information on Spring 3.0 [here](https://docs.spring.io/spring-boot/docs/3.0.0/reference/html/native-image.html#native-image.developing-your-first-application.native-build-tools.maven).
 
 To run the native executable application, execute the following:
