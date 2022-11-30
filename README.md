@@ -77,6 +77,30 @@ To build the project, execute:
 (demo-env) $ mvn clean package
 ```
 
+The `pom.xml` file contains configuration parameters *(via the GraalVM Native Image Build Tools for Maven plugin)* for the Tracing Agent. The following command will run unit tests and enable the Tracing Agent, thus generating the Tracing Agent configuration for your application:
+
+```
+(demo-env) $ mvn -PnativeTest -DskipNativeTests=true -DskipNativeBuild=true -Dagent=true test
+```
+
+To verify the newly created Tracing Agent configuration, execute the following command.
+
+```
+(demo-env) $ ls -l target/native/agent-output/test
+total 52
+drwxrwxr-x 2 sseighma sseighma  4096 Oct 13 13:19 agent-extracted-predefined-classes
+-rw-rw-r-- 1 sseighma sseighma   538 Oct 13 13:19 jni-config.json
+-rw-rw-r-- 1 sseighma sseighma    64 Oct 13 13:19 predefined-classes-config.json
+-rw-rw-r-- 1 sseighma sseighma   448 Oct 13 13:19 proxy-config.json
+-rw-rw-r-- 1 sseighma sseighma 27389 Oct 13 13:19 reflect-config.json
+-rw-rw-r-- 1 sseighma sseighma   773 Oct 13 13:19 resource-config.json
+-rw-rw-r-- 1 sseighma sseighma    51 Oct 13 13:19 serialization-config.json
+```
+
+Next, build the native image executable using the configuration files:
+
+(demo-env) $ mvn -Pnative native:compile -Dagent=true -DskipTests package
+
 To build a native image executable, execute:
 
 ```
