@@ -99,7 +99,9 @@ drwxrwxr-x 2 sseighma sseighma  4096 Oct 13 13:19 agent-extracted-predefined-cla
 
 Next, build the native image executable using the configuration files:
 
+```
 (demo-env) $ mvn -Pnative native:compile -Dagent=true -DskipTests package
+```
 
 To build a native image executable, execute:
 
