@@ -2,7 +2,7 @@
 
 #### Prerequisites
 
-Java 17 is used for this example, specifically GraalVM 22.3.0 and the `native-image` module. You can install GraalVM with native image support using a single line:
+Java 17 is used for this example, specifically GraalVM 22.3.0 Enterprise Edition and the `native-image` module. You can install GraalVM with native image support using a single line:
 
 ```
 $ bash <(curl -sL https://get.graalvm.org/jdk)

@@ -96,6 +96,7 @@
 			<plugin>
 				<groupId>org.graalvm.buildtools</groupId>
 				<artifactId>native-maven-plugin</artifactId>
+				<extensions>true</extensions>
 				<configuration>
 					<imageName>${project.artifactId}</imageName>
 					<mainClass>${exec.mainClass}</mainClass>
@@ -109,6 +110,21 @@
 						<!-- Show exception stack traces for exceptions during image building -->
 						<buildArg>-H:+ReportExceptionStackTraces</buildArg>
 					</buildArgs>
+					<agent>
+						<options><!-- shared options -->
+							<option>experimental-class-loader-support</option>
+						</options>
+						<options name="main"><!-- main options -->
+							<option>access-filter-file=${basedir}/src/main/resources/access-filter.json</option>
+						</options>
+						<options name="test"><!-- test options -->
+							<option>access-filter-file=${basedir}/src/test/resources/access-filter.json</option>
+						</options>
+						<options name="periodic-config"><!-- periodic-config options -->
+							<option>config-write-period-secs=30</option>
+							<option>config-write-initial-delay-secs=5</option>
+						</options>
+					</agent>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -137,7 +153,7 @@
 						</executions>
 						<configuration>
 							<imageName>rest-service-demo-pgoinst</imageName>
-							<mainClass>${exec.mainClass}</mainClass>
+							<!-- <mainClass>${exec.mainClass}</mainClass> -->
 							<buildArgs>
 								<!-- Quick build mode is enabled  -->
 								<buildArg>-Ob</buildArg>
@@ -181,7 +197,7 @@
 						</executions>
 						<configuration>
 							<imageName>rest-service-demo-pgo</imageName>
-							<mainClass>${exec.mainClass}</mainClass>
+							<!-- <mainClass>${exec.mainClass}</mainClass> -->
 							<buildArgs>
 								<!-- Quick build mode is enabled  -->
 								<buildArg>-Ob</buildArg>
