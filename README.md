@@ -10,9 +10,11 @@ $ bash <(curl -sL https://get.graalvm.org/jdk)
 
 More download info is [here](https://medium.com/p/91ee8d4e6ffd).
 
-Spring Boot 3.0.0 with native support (which requires GraalVM 22.3.0).
+Spring Boot 3.0.0 with native support is used and requires GraalVM 22.3.0.
 
-Oracle Linux 9 `(x86_64)` was used as the underlying OS as some features are only available on `x86_64` platforms.
+Oracle Linux 8/9 `(x86_64)` was used as the underlying OS as some features are only available on `x86_64` platforms.
+
+You can use choose to use `Maven` or `Gradle` as a build tool but `Maven` is highlighted in the example project.
 
 If you intend on creating containers, `docker` or `podman` is required. See docs [here](https://docs.oracle.com/en/operating-systems/oracle-linux/podman/podman-InstallingPodmanandRelatedUtilities.html#podman-install).
 
@@ -76,6 +78,7 @@ To build the project, execute:
 ```
 (demo-env) $ mvn clean package
 ```
+The previous command generates an executable `.jar` file in the `target` directory.
 
 The following command will run unit tests and enable the Tracing Agent, thus generating the Tracing Agent configuration for your application:
 
@@ -99,7 +102,7 @@ drwxrwxr-x 2 sseighma sseighma  4096 Oct 13 13:19 agent-extracted-predefined-cla
 
 Next, build the native image executable using the configuration files. The `pom.xml` file contains configuration parameters *(via the Maven resources plugin)* to move the Tracing Agent configuration files from `target/native/agent-output/test` to the `/src/main/resources/META-INF/native-image` directory.
 
-> NOTE: With the introduction of Spring 3.0, there is a new goal to trigger native image compilation, see more information on Spring 3.0 [here](https://docs.spring.io/spring-boot/docs/3.0.0/reference/html/native-image.html#native-image.developing-your-first-application.native-build-tools.maven).
+> **NOTE:** With the introduction of Spring Boot 3.0, there is a new goal to trigger native image compilation, see more information on Spring Boot 3.0 [here](https://docs.spring.io/spring-boot/docs/3.0.0/reference/html/native-image.html#native-image.developing-your-first-application.native-build-tools.maven).
 
 ```
 (demo-env) $ mvn -Pnative native:compile -Dagent=true -DskipTests package
@@ -338,4 +341,6 @@ To compare startup times, run the `startups.sh` script:
 
 ![](images/startup.png)
 
-The graphs are generated using  the `termgraph` tool we installed earlier.
+The graphs are generated using the `termgraph` tool we installed earlier.
+
+Your results will vary depending on the system used to host the project examples.
