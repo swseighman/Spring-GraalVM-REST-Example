@@ -16,6 +16,8 @@ Oracle Linux 8/9 `(x86_64)` was used as the underlying OS as some features are o
 
 You can use choose to use `Maven` or `Gradle` as a build tool but `Maven` is highlighted in the example project.
 
+You'll also need `git`.
+
 If you intend on creating containers, `docker` or `podman` is required. See docs [here](https://docs.oracle.com/en/operating-systems/oracle-linux/podman/podman-InstallingPodmanandRelatedUtilities.html#podman-install).
 
 **Optional**
@@ -27,6 +29,25 @@ First, check your Python version (3.9 is recommended):
 ```
 $ python3 --version
 Python 3.9.7
+```
+If you need to install Python 3.9.x, execute:
+```
+$ sudo dnf install python39 -y
+```
+Then change what version the system uses:
+```
+$ sudo alternatives --config python3
+
+There are 2 programs which provide 'python3'.
+
+  Selection    Command
+-----------------------------------------------
+*+ 1           /usr/bin/python3.6
+   2           /usr/bin/python3.9
+
+Enter to keep the current selection[+], or type selection number: 2
+$ python3 --version
+Python 3.9.13
 ```
 
 Next, create a Python virtual environment:
@@ -160,6 +181,11 @@ Finally, we'll build an optimized native executable (using the `pom.xml` profile
 #### Building a Static Native Image (x64 Linux only)
 
 See [instructions](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/guides/build-static-executables/) for building and installing the required libraries.
+
+>**NOTE:** Confirmed the static image will build using `musl 10.2.1` (fails to build with `musl 11.2.1`).
+>To download `musl 10.2.1`, click on the `more ...` link under **toolchains** and then choose the `10.2.1` directory.
+>![](images/musl-download.png)
+>![](images/musl-download-1.png)
 
 After the process has been completed, copy `$ZLIB_DIR/libz.a` to `$GRAALVM_HOME/lib/static/linux-amd64/musl/`
 
