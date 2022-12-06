@@ -77,7 +77,7 @@ To build the project, execute:
 (demo-env) $ mvn clean package
 ```
 
-The `pom.xml` file contains configuration parameters *(via the GraalVM Native Image Build Tools for Maven plugin)* for the Tracing Agent. The following command will run unit tests and enable the Tracing Agent, thus generating the Tracing Agent configuration for your application:
+The following command will run unit tests and enable the Tracing Agent, thus generating the Tracing Agent configuration for your application:
 
 ```
 (demo-env) $ mvn -PnativeTest -DskipNativeTests=true -DskipNativeBuild=true -Dagent=true test
@@ -97,13 +97,13 @@ drwxrwxr-x 2 sseighma sseighma  4096 Oct 13 13:19 agent-extracted-predefined-cla
 -rw-rw-r-- 1 sseighma sseighma    51 Oct 13 13:19 serialization-config.json
 ```
 
-Next, build the native image executable using the configuration files:
+Next, build the native image executable using the configuration files. The `pom.xml` file contains configuration parameters *(via the Maven resources plugin)* to move the Tracing Agent configuration files from `target/native/agent-output/test` to the `/src/main/resources/META-INF/native-image` directory.
+
+> NOTE: With the introduction of Spring 3.0, there is a new goal to trigger native image compilation, see more information on Spring 3.0 [here](https://docs.spring.io/spring-boot/docs/3.0.0/reference/html/native-image.html#native-image.developing-your-first-application.native-build-tools.maven).
 
 ```
 (demo-env) $ mvn -Pnative native:compile -Dagent=true -DskipTests package
 ```
-
-> NOTE: With the introduction of Spring 3.0, there is a new goal to trigger native image compilation, see more information on Spring 3.0 [here](https://docs.spring.io/spring-boot/docs/3.0.0/reference/html/native-image.html#native-image.developing-your-first-application.native-build-tools.maven).
 
 To run the native executable application, execute the following:
 
@@ -152,7 +152,7 @@ Finally, we'll build an optimized native executable (using the `pom.xml` profile
 
 #### Building a Static Native Image (x64 Linux only)
 
-See [instructions](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/StaticImages/) for building and installing the required libraries.
+See [instructions](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/guides/build-static-executables/) for building and installing the required libraries.
 
 After the process has been completed, copy `$ZLIB_DIR/libz.a` to `$GRAALVM_HOME/lib/static/linux-amd64/musl/`
 
@@ -287,7 +287,7 @@ Using `upx` we reduced the native image executable size by ~33% (from **48 MB** 
 Our native image container is now **121 MB** (versus the uncompressed version at **154 MB**):
 
 ```
-(demo-env) $ docker images
+(demo-env) $ podman images
 localhost/rest-service-demo   upx            7d43ba8808df   26 hours ago    121MB
 localhost/rest-service-demo   native         18772054f07d   26 hours ago    154MB
 ```
