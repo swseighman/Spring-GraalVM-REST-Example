@@ -215,6 +215,8 @@ You can repeat these steps for each container option:
 
 There is also a `build-containers.sh` script provided to build the container images.
 
+>**NOTE:** If you're building on MacOS or Windows, the containerized native image apps won't execute due to base architecture differences.  You'll need to use the multi-stage container build (`Dockerfile.stage`) to run a native executable. 
+
 Notice the variation in container image size for each of the options:
 ```
 (demo-env) $ podman images
