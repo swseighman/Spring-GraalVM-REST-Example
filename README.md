@@ -107,6 +107,10 @@ Next, build the native image executable using the configuration files. The `pom.
 ```
 (demo-env) $ mvn -Pnative native:compile -Dagent=true -DskipTests package
 ```
+>**NOTE:** If you're using an Oracle Cloud Infrastructure (OCI) instance, you may need to install the `libstdc` library:
+>```
+>$ sudo dnf config-manager --set-enabled ol9_codeready_builder
+>$ sudo dnf install libstdc++-static -y
 
 To run the native executable application, execute the following:
 
