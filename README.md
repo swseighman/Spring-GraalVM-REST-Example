@@ -44,7 +44,7 @@ With the virtual environment created, now install `termgraph`:
 (demo-env) $ python3 -m pip install termgraph
  ```
 
->NOTE: If you are prompted to update `pip`, execute the following command:
+>**NOTE:** If you are prompted to update `pip`, execute the following command:
  >```
  >$ python3 -m pip install --upgrade pip
  >```
