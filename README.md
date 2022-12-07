@@ -10,11 +10,15 @@ $ bash <(curl -sL https://get.graalvm.org/jdk)
 
 More download info is [here](https://medium.com/p/91ee8d4e6ffd).
 
-Spring Boot 3.0.0 with native support (which requires GraalVM 22.3.0).
+Spring Boot 3.0.0 with native support is used and requires GraalVM 22.3.0.
 
-Oracle Linux 9 `(x86_64)` was used as the underlying OS as some features are only available on `x86_64` platforms.
+Oracle Linux 8/9 `(x86_64)` was used as the underlying OS as some features are only available on `x86_64` platforms.
 
-If you intend on creating containers, `docker` or `podman` is required.
+You can use choose to use `Maven` or `Gradle` as a build tool but `Maven` is highlighted in the example project.
+
+You'll also need `git`.
+
+If you intend on creating containers, `docker` or `podman` is required. See docs [here](https://docs.oracle.com/en/operating-systems/oracle-linux/podman/podman-InstallingPodmanandRelatedUtilities.html#podman-install).
 
 **Optional**
 
@@ -25,6 +29,25 @@ First, check your Python version (3.9 is recommended):
 ```
 $ python3 --version
 Python 3.9.7
+```
+If you need to install Python 3.9.x, execute:
+```
+$ sudo dnf install python39 -y
+```
+Then change what version the system uses:
+```
+$ sudo alternatives --config python3
+
+There are 2 programs which provide 'python3'.
+
+  Selection    Command
+-----------------------------------------------
+*+ 1           /usr/bin/python3.6
+   2           /usr/bin/python3.9
+
+Enter to keep the current selection[+], or type selection number: 2
+$ python3 --version
+Python 3.9.13
 ```
 
 Next, create a Python virtual environment:
@@ -42,7 +65,7 @@ With the virtual environment created, now install `termgraph`:
 (demo-env) $ python3 -m pip install termgraph
  ```
 
->NOTE: If you are prompted to update `pip`, execute the following command:
+>**NOTE:** If you are prompted to update `pip`, execute the following command:
  >```
  >$ python3 -m pip install --upgrade pip
  >```
@@ -76,8 +99,9 @@ To build the project, execute:
 ```
 (demo-env) $ mvn clean package
 ```
+The previous command generates an executable `.jar` file in the `target` directory.
 
-The `pom.xml` file contains configuration parameters *(via the GraalVM Native Image Build Tools for Maven plugin)* for the Tracing Agent. The following command will run unit tests and enable the Tracing Agent, thus generating the Tracing Agent configuration for your application:
+The following command will run unit tests and enable the Tracing Agent, thus generating the Tracing Agent configuration for your application:
 
 ```
 (demo-env) $ mvn -PnativeTest -DskipNativeTests=true -DskipNativeBuild=true -Dagent=true test
@@ -97,13 +121,17 @@ drwxrwxr-x 2 sseighma sseighma  4096 Oct 13 13:19 agent-extracted-predefined-cla
 -rw-rw-r-- 1 sseighma sseighma    51 Oct 13 13:19 serialization-config.json
 ```
 
-Next, build the native image executable using the configuration files:
+Next, build the native image executable using the configuration files. The `pom.xml` file contains configuration parameters *(via the Maven resources plugin)* to move the Tracing Agent configuration files from `target/native/agent-output/test` to the `/src/main/resources/META-INF/native-image` directory.
+
+> **NOTE:** With the introduction of Spring Boot 3.0, there is a new goal to trigger native image compilation, see more information on Spring Boot 3.0 [here](https://docs.spring.io/spring-boot/docs/3.0.0/reference/html/native-image.html#native-image.developing-your-first-application.native-build-tools.maven).
 
 ```
 (demo-env) $ mvn -Pnative native:compile -Dagent=true -DskipTests package
 ```
-
-> NOTE: With the introduction of Spring 3.0, there is a new goal to trigger native image compilation, see more information on Spring 3.0 [here](https://docs.spring.io/spring-boot/docs/3.0.0/reference/html/native-image.html#native-image.developing-your-first-application.native-build-tools.maven).
+>**NOTE:** If you're using an Oracle Cloud Infrastructure (OCI) instance, you may need to install the `libstdc` library:
+>```
+>$ sudo dnf config-manager --set-enabled ol9_codeready_builder
+>$ sudo dnf install libstdc++-static -y
 
 To run the native executable application, execute the following:
 
@@ -152,7 +180,12 @@ Finally, we'll build an optimized native executable (using the `pom.xml` profile
 
 #### Building a Static Native Image (x64 Linux only)
 
-See [instructions](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/StaticImages/) for building and installing the required libraries.
+See [instructions](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/guides/build-static-executables/) for building and installing the required libraries.
+
+>**NOTE:** Confirmed the static image will build using `musl 10.2.1` (fails to build with `musl 11.2.1`).
+>To download `musl 10.2.1`, click on the `more ...` link under **toolchains** and then choose the `10.2.1` directory.
+>![](images/musl-download.png)
+>![](images/musl-download-1.png)
 
 After the process has been completed, copy `$ZLIB_DIR/libz.a` to `$GRAALVM_HOME/lib/static/linux-amd64/musl/`
 
@@ -178,11 +211,11 @@ Within this repository, there are a few examples of deploying applications in va
 For example, to build the JAR version:
 
 ```
-(demo-env) $ docker build -f src/main/resources/containers/Dockerfile.jvm -t localhost/rest-service-demo:jvm .
+(demo-env) $ podman build -f src/main/resources/containers/Dockerfile.jvm -t localhost/rest-service-demo:jvm .
 ```
 
 ```
-(demo-env) $ docker run -i --rm -p 8080:8080 localhost/rest-service-demo:jvm
+(demo-env) $ podman run -i --rm -p 8080:8080 localhost/rest-service-demo:jvm
 ```
 
 Browse to `localhost:8080/greeting`, where you should see:
@@ -212,9 +245,11 @@ You can repeat these steps for each container option:
 
 There is also a `build-containers.sh` script provided to build the container images.
 
+>**NOTE:** If you're building on MacOS or Windows, the containerized native image apps won't execute due to base architecture differences.  You'll need to use the multi-stage container build (`Dockerfile.stage`) to run a native executable. 
+
 Notice the variation in container image size for each of the options:
 ```
-(demo-env) $ docker images
+(demo-env) $ podman images
 localhost/rest-service-demo   upx            7d43ba8808df   23 hours ago    121MB
 localhost/rest-service-demo   distroless     d09302740238   23 hours ago    37.2MB
 localhost/rest-service-demo   native         18772054f07d   23 hours ago    154MB
@@ -228,7 +263,7 @@ localhost/rest-service-demo   stage          428fdc2f55a0   4 months ago    177M
 To deploy all of the containers, run:
 ```
 (demo-env) $ cd src/main/resources/containers
-(demo-env) $ docker-compose up -d
+(demo-env) $ podman-compose up -d
 [+] Running 7/7
  ⠿ Container rest-service-demo-distroless  Running                                                 0.0s
  ⠿ Container rest-service-demo-jvm         Running                                                 0.0s
@@ -239,8 +274,10 @@ To deploy all of the containers, run:
  ⠿ Container rest-service-demo-jlink       Started                                                 0.4s
 ```
 
+>NOTE: You can install `podman-compose` using the instructions [here](https://github.com/containers/podman-compose).
+
 ```
-(demo-env) $ docker ps
+(demo-env) $ podman ps
 CONTAINER ID   IMAGE                                    COMMAND                  CREATED       STATUS       PORTS
        NAMES
 5fef9e8aec02   localhost/rest-service-demo:jvm          "java -jar app.jar -…"   8 hours ago   Up 8 hours   0.0.0.0:8081->8080/tcp   rest-service-demo-jvm
@@ -254,7 +291,7 @@ a8e45684e8f3   localhost/rest-service-demo:pgo          "/app -Xms64m -Xmx64m"  
 To stop the containers, execute:
 
 ```
-(demo-env) $ docker-compose down
+(demo-env) $ podman-compose down
 ```
 
 
@@ -285,7 +322,7 @@ Using `upx` we reduced the native image executable size by ~33% (from **48 MB** 
 Our native image container is now **121 MB** (versus the uncompressed version at **154 MB**):
 
 ```
-(demo-env) $ docker images
+(demo-env) $ podman images
 localhost/rest-service-demo   upx            7d43ba8808df   26 hours ago    121MB
 localhost/rest-service-demo   native         18772054f07d   26 hours ago    154MB
 ```
@@ -336,4 +373,6 @@ To compare startup times, run the `startups.sh` script:
 
 ![](images/startup.png)
 
-The graphs are generated using  the `termgraph` tool we installed earlier.
+The graphs are generated using the `termgraph` tool we installed earlier.
+
+Your results will vary depending on the system used to host the project examples.
