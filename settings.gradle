@@ -1,7 +1,4 @@
 pluginManagement {
-	// plugins {
-    //     id 'org.graalvm.buildtools.native' version '0.12.1'
-    // }
 	repositories {
 		mavenLocal()
 		maven { url 'https://repo.spring.io/release' }

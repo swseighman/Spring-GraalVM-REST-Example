@@ -110,23 +110,33 @@
 						<!-- Show exception stack traces for exceptions during image building -->
 						<buildArg>-H:+ReportExceptionStackTraces</buildArg>
 					</buildArgs>
-					<agent>
-						<options><!-- shared options -->
-							<option>experimental-class-loader-support</option>
-						</options>
-						<options name="main"><!-- main options -->
-							<option>access-filter-file=${basedir}/src/main/resources/access-filter.json</option>
-						</options>
-						<options name="test"><!-- test options -->
-							<option>access-filter-file=${basedir}/src/test/resources/access-filter.json</option>
-						</options>
-						<options name="periodic-config"><!-- periodic-config options -->
-							<option>config-write-period-secs=30</option>
-							<option>config-write-initial-delay-secs=5</option>
-						</options>
-					</agent>
 				</configuration>
 			</plugin>
+			<plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-agent-config</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <!-- The tracing agent config needs to be placed here to be picked up
+                                 by the native-image tool -->
+                            <outputDirectory>src/main/resources/META-INF/native-image</outputDirectory>
+                            <resources>
+                                <resource>
+                                     <!-- The location that the native build tools will write the tracing agent
+                                            config out to -->
+                                    <directory>${basedir}/target/native/agent-output/test</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 

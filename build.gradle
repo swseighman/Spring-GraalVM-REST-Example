@@ -1,8 +1,8 @@
 plugins {
-	id 'org.springframework.boot' version '3.0.0-RC2'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
-	id 'org.graalvm.buildtools.native' version '0.9.17'
+	id 'org.springframework.boot' version '3.0.0'
+	id 'io.spring.dependency-management' version '1.1.0'
+	id 'org.graalvm.buildtools.native' version '0.9.18'
 }
 
 group = 'com.example'
@@ -12,46 +12,17 @@ sourceCompatibility = '17'
 
 repositories {
 	mavenCentral()
-	mavenLocal()
-	maven { url 'https://repo.spring.io/release' }
-	maven { url 'https://repo.spring.io/milestone' }
-	maven { url 'https://repo.spring.io/snapshot' }
-	mavenCentral()
-    gradlePluginPortal()
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
-	testImplementation('org.springframework.boot:spring-boot-starter-test')
-	testImplementation 'org.junit.platform:junit-platform-launcher'
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-// test {
-// 	useJUnitPlatform()
-// }
-
-test { 
-  jvmArgs '-agentlib:native-image-agent=access-filter-file=access-filter.json,config-output-dir=src/main/resources/META-INF/native-image'
-}
-
-springAot {
-	// println "Printing tracing agent boolean value= " + System.getenv('tracing')
-	// if(System.getenv('tracing') == 'true'){
-	// 	mode = AotMode.NATIVE_AGENT
-	// } else {
-	// 	// default mode is NATIVE
-	mode = AotMode.NATIVE
-	// }
-	// Which main class to use
-	mainClass='com.example.restservice.RestServiceApplication'
-	// Removing YAML support
-	removeYamlSupport = true
-	// Need XML support for handling results in native image
-	removeXmlSupport = false
-	// Remove JMX Support
-	removeJmxSupport = true
+tasks.named('test') {
+	useJUnitPlatform()
 }
 
 // Configuration used by GraalVM native image compiler while building native image.
