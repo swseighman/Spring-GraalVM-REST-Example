@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-kubernetes-service
+spec:
+  ports:
+    - protocol: "TCP"
+      port: 8080        # The port inside the cluster
+      targetPort: 8080  # The port exposed by the service
+  type: NodePort        # Type of service
+  selector:
+    app: springboot-kubernetes

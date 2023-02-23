@@ -1,8 +1,8 @@
-FROM container-registry.oracle.com/os/oraclelinux:8-slim
+FROM container-registry.oracle.com/os/oraclelinux:9-slim
 
 EXPOSE 8080
 
-COPY target/rest-service-demo.upx app
+COPY target/rest-service-demo app
 ENTRYPOINT ["/app"]
 
 # Build and run:

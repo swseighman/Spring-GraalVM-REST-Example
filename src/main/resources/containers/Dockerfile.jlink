@@ -4,9 +4,7 @@ FROM container-registry.oracle.com/java/openjdk:17-oraclelinux8 as BUILDER
 RUN jlink --add-modules java.base,java.logging,java.desktop,jdk.httpserver,java.management,java.naming,java.security.jgss,java.instrument \
         --output /min-jre
 
-FROM container-registry.oracle.com/os/oraclelinux:8-slim
-
-# Now package out app with the minimal runtime
+FROM container-registry.oracle.com/os/oraclelinux:9-slim
 
 EXPOSE 8080
 

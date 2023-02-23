@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-kubernetes
+spec:
+  selector:
+    matchLabels:
+      app: springboot-kubernetes
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: springboot-kubernetes
+    spec:
+      containers:
+        - name: springboot-kubernetes
+          image: localhost/rest-service-demo:native
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080

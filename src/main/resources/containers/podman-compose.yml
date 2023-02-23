@@ -1,0 +1,107 @@
+version: '2.4'
+
+volumes:
+    prometheus_data:
+    grafana_data:
+
+services:
+
+  # Apps
+  rest-service-demo-jvm:
+    image: localhost/rest-service-demo:jvm
+#    restart: always
+    container_name: rest-service-demo-jvm
+    command:
+      - "java"
+      - "-jar"
+      - "app.jar"
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8081:8080"
+  rest-service-demo-native:
+    image: localhost/rest-service-demo:native
+#    restart: 
+    container_name: rest-service-demo-native
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8082:8080"
+  rest-service-demo-upx:
+    image: localhost/rest-service-demo:upx
+#    restart: never
+    container_name: rest-service-demo-upx
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8083:8080"
+  rest-service-demo-distroless:
+    image: localhost/rest-service-demo:distroless
+#    restart: never
+    container_name: rest-service-demo-distroless
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8084:8080"
+  rest-service-demo-jlink:
+    image: localhost/rest-service-demo:jlink
+#    restart: always
+    container_name: rest-service-demo-jlink
+    command:
+      - "-jar"
+      - "app.jar"
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8085:8080"
+  rest-service-demo-pgo:
+    image: localhost/rest-service-demo:pgo
+#    restart: never
+    container_name: rest-service-demo-pgo
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8086:8080"
+  rest-service-demo-static:
+    image: localhost/rest-service-demo:static
+#    restart: never
+    container_name: rest-service-demo-static
+    # depends_on:
+    #   - "prom"
+    ports:
+      - "8087:8080"
+      
+  # Reporting & Metrics
+
+  ## Prometheus
+  # prom:
+  #   image: prom/prometheus
+  #   container_name: prometheus
+  #   volumes:
+  #     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #     - '--web.console.libraries=/etc/prometheus/console_libraries'
+  #     - '--web.console.templates=/etc/prometheus/consoles'
+  #     - '--web.enable-lifecycle'
+  #     - '--web.enable-admin-api'
+  #   ports:
+  #     - "9090:9090"
+
+  # ## CAdvisor
+  # cadvisor:
+  #   image: gcr.io/cadvisor/cadvisor:latest
+  #   container_name: cadvisor
+  #   privileged: true
+  #   devices:
+  #     - /dev/kmsg:/dev/kmsg
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:ro
+  #     - /sys:/sys:ro
+  #     - /var/lib/docker:/var/lib/docker:ro
+  #     - /cgroup:/cgroup:ro    # doesn't work on MacOS, only for Linux
+  #   restart: unless-stopped
+  #   ports:
+  #     - 9099:8080

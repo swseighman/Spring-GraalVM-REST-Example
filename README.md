@@ -243,9 +243,21 @@ You can repeat these steps for each container option:
 * Dockerfile.distroless
 * Dockerfile.static (x64 Linux only)
 
-There is also a `build-containers.sh` script provided to build the container images.
+There is also a `build-containers.sh` script provided to build the container images. You should run the script from the root project directory:
 
->**NOTE:** If you're building on MacOS or Windows, the containerized native image apps won't execute due to base architecture differences.  You'll need to use the multi-stage container build (`Dockerfile.stage`) to run a native executable. 
+```
+(demo-env) $ src/main/resources/containers/build-containers.sh
+```
+
+>**NOTE:** If you're building on macOS or Windows, the containerized native image apps won't execute due to base architecture differences.  You'll need to use the multi-stage container build (`Dockerfile.stage`) to run a native executable in those environments.
+>The following containers will not run as expected:
+>```
+>rest-service-demo:upx
+>rest-service-demo:distroless
+>rest-service-demo:native
+>rest-service-demo:pgo
+>rest-service-demo:static
+>```
 
 Notice the variation in container image size for each of the options:
 ```
@@ -263,7 +275,7 @@ localhost/rest-service-demo   stage          428fdc2f55a0   4 months ago    177M
 To deploy all of the containers, run:
 ```
 (demo-env) $ cd src/main/resources/containers
-(demo-env) $ podman-compose up -d
+(demo-env) $ src/main/resources/containers/podman-compose -f src/main/resources/containers/podman-compose.yml up -d
 [+] Running 7/7
  ⠿ Container rest-service-demo-distroless  Running                                                 0.0s
  ⠿ Container rest-service-demo-jvm         Running                                                 0.0s
@@ -291,7 +303,7 @@ a8e45684e8f3   localhost/rest-service-demo:pgo          "/app -Xms64m -Xmx64m"  
 To stop the containers, execute:
 
 ```
-(demo-env) $ podman-compose down
+(demo-env) $ src/main/resources/containers/podman-compose -f src/main/resources/containers/podman-compose.yml down
 ```
 
 
@@ -376,3 +388,127 @@ To compare startup times, run the `startups.sh` script:
 The graphs are generated using the `termgraph` tool we installed earlier.
 
 Your results will vary depending on the system used to host the project examples.
+
+#### Deploying to Kubernetes Using Maven (minikube)
+
+Using the Maven [Eclipse JKube plugin](https://www.eclipse.org/jkube/), we can deploy the application to `minikube` (or any Kubernetes platform) directly.
+
+For this example, the **no configuration** option, meaning we'll use the built-in `k8s` profile.
+
+First, we'll need to build a container image:
+```
+$ mvn k8s:build
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------< com.example:rest-service-demo >--------------------
+[INFO] Building rest-service-demo 0.0.1-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- kubernetes-maven-plugin:1.11.0:build (default-cli) @ rest-service-demo ---
+[INFO] k8s: Building Docker image in Kubernetes mode
+[INFO] k8s: Using Dockerfile: /home/sseighma/code/Spring-GraalVM-REST-Example/Dockerfile
+[INFO] k8s: Using Docker Context Directory: /home/sseighma/code/Spring-GraalVM-REST-Example
+[INFO] k8s: [example/rest-service-demo:latest]: Created docker-build.tar in 6 seconds 
+[INFO] k8s: [example/rest-service-demo:latest]: Built image sha256:a4fc1
+[INFO] k8s: [example/rest-service-demo:latest]: Removed old image sha256:f9fc4
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  15.440 s
+[INFO] Finished at: 2023-02-22T15:59:16-05:00
+[INFO] ------------------------------------------------------------------------
+```
+
+Confirm your image was created:
+
+```
+$ docker images
+﻿example/rest-service-demo    latest    a4fc17272ed0   8 minutes ago       157MB
+```
+
+Next, we'll deploy the application to `minikube`:
+
+```
+$ mvn k8s:resource k8s:apply
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------< com.example:rest-service-demo >--------------------
+[INFO] Building rest-service-demo 0.0.1-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- kubernetes-maven-plugin:1.11.0:resource (default-cli) @ rest-service-demo ---
+[INFO] k8s: Using Dockerfile: /home/sseighma/code/Spring-GraalVM-REST-Example/Dockerfile
+[INFO] k8s: Using Docker Context Directory: /home/sseighma/code/Spring-GraalVM-REST-Example
+[INFO] k8s: Using resource templates from /home/sseighma/code/Spring-GraalVM-REST-Example/src/main/jkube
+[INFO] k8s: jkube-controller: Adding a default Deployment
+[INFO] k8s: jkube-service: Adding a default service 'rest-service-demo' with ports [8080]
+[INFO] k8s: jkube-healthcheck-spring-boot: Adding readiness probe on port 8080, path='/actuator/health', scheme='HTTP', with initial delay 10 seconds
+[INFO] k8s: jkube-healthcheck-spring-boot: Adding liveness probe on port 8080, path='/actuator/health', scheme='HTTP', with initial delay 180 seconds
+[INFO] k8s: jkube-service-discovery: Using first mentioned service port '8080' 
+[INFO] k8s: jkube-revision-history: Adding revision history limit to 2
+[INFO] k8s: validating /home/sseighma/code/Spring-GraalVM-REST-Example/target/classes/META-INF/jkube/kubernetes/rest-service-demo-service.yml resource
+[INFO] k8s: validating /home/sseighma/code/Spring-GraalVM-REST-Example/target/classes/META-INF/jkube/kubernetes/rest-service-demo-deployment.yml resource
+[INFO] 
+[INFO] --- kubernetes-maven-plugin:1.11.0:apply (default-cli) @ rest-service-demo ---
+[INFO] k8s: Using Kubernetes at https://192.168.49.2:8443/ in namespace null with manifest /home/sseighma/code/Spring-GraalVM-REST-Example/target/classes/META-INF/jkube/kubernetes.yml 
+[INFO] k8s: Creating a Service from kubernetes.yml namespace default name rest-service-demo
+[INFO] k8s: Created Service: target/jkube/applyJson/default/service-rest-service-demo.json
+[INFO] k8s: Creating a Deployment from kubernetes.yml namespace default name rest-service-demo
+[INFO] k8s: Created Deployment: target/jkube/applyJson/default/deployment-rest-service-demo.json
+[INFO] k8s: HINT: Use the command `kubectl get pods -w` to watch your pods start up
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  9.534 s
+[INFO] Finished at: 2023-02-22T16:00:42-05:00
+[INFO] ------------------------------------------------------------------------
+
+```
+
+You can see the pod running:
+```
+$ k get pods -w
+﻿NAME                                READY   STATUS    RESTARTS   AGE
+rest-service-demo-5bc6dfbb54-g6cvv   1/1     Running   0          6s
+```
+
+To get the URL for the service, execute the following command (it will automatically open a browser tab):
+
+```
+$ minikube service rest-service-demo
+﻿|-----------|-------------------|-------------|---------------------------|
+| NAMESPACE |       NAME        | TARGET PORT |            URL            |
+|-----------|-------------------|-------------|---------------------------|
+| default   | rest-service-demo | http/8080   | http://192.168.49.2:30716 |
+|-----------|-------------------|-------------|---------------------------|
+🎉  Opening service default/rest-service-demo in default browser...
+```
+
+You'll need to add a proper endpoint to the URL.  For example:
+
+[http://192.168.49.2:30716/greeting](http://192.168.49.2:30716/greeting)
+
+or 
+
+[http://192.168.49.2:30716/greeting?name=User](http://192.168.49.2:30716/greeting?name=User)
+
+Finally, you can delete the deployment by executing this command:
+```
+$ mvn k8s:undeploy
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------< com.example:rest-service-demo >--------------------
+[INFO] Building rest-service-demo 0.0.1-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- kubernetes-maven-plugin:1.11.0:undeploy (default-cli) @ rest-service-demo ---
+[INFO] k8s: Deleting resource Deployment default/rest-service-demo
+[INFO] k8s: Deleting resource Service default/rest-service-demo
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  3.094 s
+[INFO] Finished at: 2023-02-22T16:03:38-05:00
+[INFO] ------------------------------------------------------------------------
+
+```

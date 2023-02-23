@@ -2,7 +2,7 @@ FROM scratch
 
 EXPOSE 8080
 
-ADD tmp.tar /
+ADD src/main/resources/containers/tmp.tar /
 
 COPY target/rest-service-demo-static /app
 ENTRYPOINT ["/app"]

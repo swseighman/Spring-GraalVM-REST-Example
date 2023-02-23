@@ -10,24 +10,26 @@ RUN \
     curl -s "https://get.sdkman.io" | bash; \
     source "$HOME/.sdkman/bin/sdkman-init.sh"; \
     # Install Maven
-    #sdk install maven; \
-    #mvn package -Pnative -DskipTests
+    sdk install maven; \
+    # Compile native image executable (Maven)
+    mvn package -Pnative native:compile -DskipTests
     # Install Gradle
-    sdk install gradle; \
-    gradle nativeCompile
+    # sdk install gradle; \
+    # Compile native image executable (Gradle)
+    # gradle nativeCompile
 
 FROM container-registry.oracle.com/os/oraclelinux:9-slim
 
 EXPOSE 8080
 
 # For Maven build
-#COPY --from=graalvm /home/app/restservice/target/rest-service-demo rest-service-demo
+COPY --from=graalvm /home/app/restservice/target/rest-service-demo rest-service-demo
 
 # For Gradle build
-COPY --from=graalvm /home/app/restservice/build/native/nativeCompile/rest-service-demo rest-service-demo
+# COPY --from=graalvm /home/app/restservice/build/native/nativeCompile/rest-service-demo rest-service-demo
 
 ENTRYPOINT ["/rest-service-demo"]
 
 # Build and run:
-# docker build -f ./Dockerfile.stage -t localhost/rest-service-demo:stage .
-# docker run --rm -p 8080:8080 localhost/rest-service-demo:stage
+# podman build -f ./Dockerfile.stage -t localhost/rest-service-demo:stage .
+# podman run --rm -p 8080:8080 localhost/rest-service-demo:stage
