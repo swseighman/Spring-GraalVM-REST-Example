@@ -147,36 +147,6 @@
             </plugin>
 		</plugins>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>k8s</id>
-			<properties>
-				<jkube.enricher.jkube-namespace.namespace>${project.artifactId}</jkube.enricher.jkube-namespace.namespace>
-				<jkube.generator.from>container-registry.oracle.com/java/openjdk:17-oraclelinux8</jkube.generator.from>
-				<jkube.namespace>${project.artifactId}</jkube.namespace>
-				<jkube.recreate>true</jkube.recreate>
-				<jkube.version>1.11.0</jkube.version>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.eclipse.jkube</groupId>
-						<artifactId>kubernetes-maven-plugin</artifactId>
-						<version>${jkube.version}</version>
-						<executions>
-							<execution>
-								<id>jkube</id>
-								<goals>
-									<goal>resource</goal>
-									<goal>build</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 		<profile>
 			<id>pgo-inst</id>
 			<properties>
