@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.2</version>
+		<version>3.0.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
@@ -15,7 +15,7 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
-		<jkube.version>1.11.0</jkube.version>
+		<jkube.version>1.12.0</jkube.version>
         <jkube.enricher.jkube-service.type>NodePort</jkube.enricher.jkube-service.type>
 	</properties>
 	
@@ -34,7 +34,6 @@
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>1.8.2</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -98,9 +97,12 @@
 			<plugin>
 				<groupId>org.graalvm.buildtools</groupId>
 				<artifactId>native-maven-plugin</artifactId>
-				<version>0.9.20</version>
+				<version>0.9.21</version>
 				<extensions>true</extensions>
 				<configuration>
+					<metadataRepository>
+						<enabled>true</enabled>
+					</metadataRepository>
 					<imageName>${project.artifactId}</imageName>
 					<mainClass>${exec.mainClass}</mainClass>
 					<buildArgs>
@@ -117,7 +119,7 @@
 			</plugin>
 			<plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>copy-agent-config</id>

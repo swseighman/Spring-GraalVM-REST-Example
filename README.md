@@ -2,7 +2,7 @@
 
 #### Prerequisites
 
-Java 17 is used for this example, specifically GraalVM 22.3.0 Enterprise Edition and the `native-image` module. You can install GraalVM with native image support using a single line:
+Java 17 is used for this example, specifically GraalVM 22.3.1 Enterprise Edition and the `native-image` module. You can install GraalVM with native image support using a single line:
 
 ```
 $ bash <(curl -sL https://get.graalvm.org/jdk)
@@ -415,7 +415,7 @@ $ mvn k8s:build
 [INFO] Building rest-service-demo 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- kubernetes-maven-plugin:1.11.0:build (default-cli) @ rest-service-demo ---
+[INFO] --- kubernetes-maven-plugin:1.12.0:build (default-cli) @ rest-service-demo ---
 [INFO] k8s: Building Docker image in Kubernetes mode
 [INFO] k8s: Using Dockerfile: /home/sseighma/code/Spring-GraalVM-REST-Example/Dockerfile
 [INFO] k8s: Using Docker Context Directory: /home/sseighma/code/Spring-GraalVM-REST-Example
@@ -447,7 +447,7 @@ $ mvn k8s:resource k8s:apply
 [INFO] Building rest-service-demo 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- kubernetes-maven-plugin:1.11.0:resource (default-cli) @ rest-service-demo ---
+[INFO] --- kubernetes-maven-plugin:1.12.0:resource (default-cli) @ rest-service-demo ---
 [INFO] k8s: Using Dockerfile: /home/sseighma/code/Spring-GraalVM-REST-Example/Dockerfile
 [INFO] k8s: Using Docker Context Directory: /home/sseighma/code/Spring-GraalVM-REST-Example
 [INFO] k8s: Using resource templates from /home/sseighma/code/Spring-GraalVM-REST-Example/src/main/jkube
@@ -460,7 +460,7 @@ $ mvn k8s:resource k8s:apply
 [INFO] k8s: validating /home/sseighma/code/Spring-GraalVM-REST-Example/target/classes/META-INF/jkube/kubernetes/rest-service-demo-service.yml resource
 [INFO] k8s: validating /home/sseighma/code/Spring-GraalVM-REST-Example/target/classes/META-INF/jkube/kubernetes/rest-service-demo-deployment.yml resource
 [INFO] 
-[INFO] --- kubernetes-maven-plugin:1.11.0:apply (default-cli) @ rest-service-demo ---
+[INFO] --- kubernetes-maven-plugin:1.12.0:apply (default-cli) @ rest-service-demo ---
 [INFO] k8s: Using Kubernetes at https://192.168.49.2:8443/ in namespace null with manifest /home/sseighma/code/Spring-GraalVM-REST-Example/target/classes/META-INF/jkube/kubernetes.yml 
 [INFO] k8s: Creating a Service from kubernetes.yml namespace default name rest-service-demo
 [INFO] k8s: Created Service: target/jkube/applyJson/default/service-rest-service-demo.json
@@ -512,7 +512,7 @@ $ mvn k8s:undeploy
 [INFO] Building rest-service-demo 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- kubernetes-maven-plugin:1.11.0:undeploy (default-cli) @ rest-service-demo ---
+[INFO] --- kubernetes-maven-plugin:1.12.0:undeploy (default-cli) @ rest-service-demo ---
 [INFO] k8s: Deleting resource Deployment default/rest-service-demo
 [INFO] k8s: Deleting resource Service default/rest-service-demo
 [INFO] ------------------------------------------------------------------------
