@@ -1,6 +1,6 @@
 # Spring Boot / GraalVM REST Example
 
-#### Prerequisites
+### Prerequisites
 
 Java 17 is used for this example, specifically GraalVM 22.3.1 Enterprise Edition and the `native-image` module. You can install GraalVM with native image support using a single line:
 
@@ -93,7 +93,7 @@ Confirm `termgraph` installed correctly:
 
 Great, with all of the prerequisites in place, we can move to the next steps.
 
-#### Building the Project
+### Building the Project
 
 Let's begin by cloning the demo repository:
 
@@ -152,7 +152,7 @@ To run the native executable application, execute the following:
 2022-04-04 11:27:58.076  INFO 27055 --- [           main] c.e.restservice.RestServiceApplication   : Started RestServiceApplication in 0.026 seconds (JVM running for 0.027)
 ```
 
-#### Building a PGO Executable
+### Building a PGO Executable
 
 You can optimize this native executable even more for additional performance gain and higher throughput by applying Profile-Guided Optimizations (PGO).
 
@@ -189,7 +189,7 @@ Finally, we'll build an optimized native executable (using the `pom.xml` profile
 
 
 
-#### Building a Static Native Image (x64 Linux only)
+### Building a Static Native Image (x64 Linux only)
 
 See [instructions](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/guides/build-static-executables/) for building and installing the required libraries.
 
@@ -213,7 +213,7 @@ To run the static native executable application, execute the following:
 ```
 
 
-#### Container Options
+### Container Options
 
 Within this repository, there are a few examples of deploying applications in various container environments, from distroless to full OS images.  Choose the appropriate version for your use case and build the images.
 
@@ -285,8 +285,7 @@ localhost/rest-service-demo   stage          428fdc2f55a0   4 months ago    177M
 
 To deploy all of the containers, run:
 ```
-(demo-env) $ cd src/main/resources/containers
-(demo-env) $ docker-compose -f src/main/resources/containers/podman-compose.yml up -d
+(demo-env) $ docker-compose -f src/main/resources/containers/docker-compose.yml up -d
 [+] Running 7/7
  ⠿ Container rest-service-demo-distroless  Running                                                 0.0s
  ⠿ Container rest-service-demo-jvm         Running                                                 0.0s
@@ -314,11 +313,11 @@ a8e45684e8f3   localhost/rest-service-demo:pgo          "/app -Xms64m -Xmx64m"  
 To stop the containers, execute:
 
 ```
-(demo-env) $ docker-compose -f src/main/resources/containers/podman-compose.yml down
+(demo-env) $ docker-compose -f src/main/resources/containers/docker-compose.yml down
 ```
 
 
-#### Compressing the Native Image Executable
+### Compressing the Native Image Executable
 
 You can choose to compress the native image executable using the [upx](https://upx.github.io/) utility which will reduce your container size but have little impact on startup performance.
 
@@ -380,7 +379,7 @@ Currently, JFR support includes these limitations:
 See the [docs](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/debugging-and-diagnostics/JFR/) for additional information.
 
 
-#### Viewing Project Metrics
+### Viewing Project Metrics
 
 If you're curious about image and container sizes or want to see the startup times for the containers created in this example, there are scripts located in the `src/main/resources/scripts` directory that create bar graphs for each.
 
@@ -400,7 +399,7 @@ The graphs are generated using the `termgraph` tool we installed earlier.
 
 Your results will vary depending on the system used to host the project examples.
 
-#### Deploying to Kubernetes Using Maven (minikube)
+### Deploying to Kubernetes Using Maven (minikube)
 
 Using the Maven [Eclipse JKube plugin](https://www.eclipse.org/jkube/), we can deploy the application to `minikube` (or any Kubernetes platform) directly.
 
