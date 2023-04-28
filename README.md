@@ -349,7 +349,7 @@ localhost/rest-service-demo   upx            7d43ba8808df   26 hours ago    121M
 localhost/rest-service-demo   native         18772054f07d   26 hours ago    154MB
 ```
 
-#### Enabling JDK Flight Recorder
+### Enabling JDK Flight Recorder
 
 To build a native image with the JFR events support, you first need to enable JFR at image build time. The `pom.xml` includes parameters to build a native executable with JFR support enabled (in the `<buildArgs`):
 
