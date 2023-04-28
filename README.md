@@ -222,11 +222,11 @@ Within this repository, there are a few examples of deploying applications in va
 For example, to build the JAR version:
 
 ```
-(demo-env) $ podman build -f src/main/resources/containers/Dockerfile.jvm -t localhost/rest-service-demo:jvm .
+(demo-env) $ docker build -f src/main/resources/containers/Dockerfile.jvm -t localhost/rest-service-demo:jvm .
 ```
 
 ```
-(demo-env) $ podman run -i --rm -p 8080:8080 localhost/rest-service-demo:jvm
+(demo-env) $ docker run -i --rm -p 8080:8080 localhost/rest-service-demo:jvm
 ```
 
 Browse to `localhost:8080/greeting`, where you should see:
@@ -272,7 +272,7 @@ There is also a `build-containers.sh` script provided to build the container ima
 
 Notice the variation in container image size for each of the options:
 ```
-(demo-env) $ podman images
+(demo-env) $ docker images
 localhost/rest-service-demo   upx            7d43ba8808df   23 hours ago    121MB
 localhost/rest-service-demo   distroless     d09302740238   23 hours ago    37.2MB
 localhost/rest-service-demo   native         18772054f07d   23 hours ago    154MB
@@ -286,7 +286,7 @@ localhost/rest-service-demo   stage          428fdc2f55a0   4 months ago    177M
 To deploy all of the containers, run:
 ```
 (demo-env) $ cd src/main/resources/containers
-(demo-env) $ src/main/resources/containers/podman-compose -f src/main/resources/containers/podman-compose.yml up -d
+(demo-env) $ docker-compose -f src/main/resources/containers/podman-compose.yml up -d
 [+] Running 7/7
  ⠿ Container rest-service-demo-distroless  Running                                                 0.0s
  ⠿ Container rest-service-demo-jvm         Running                                                 0.0s
@@ -297,10 +297,10 @@ To deploy all of the containers, run:
  ⠿ Container rest-service-demo-jlink       Started                                                 0.4s
 ```
 
->NOTE: You can install `podman-compose` using the instructions [here](https://github.com/containers/podman-compose).
+>NOTE: If you're using `podman`, you can install `podman-compose` using the instructions [here](https://github.com/containers/podman-compose).
 
 ```
-(demo-env) $ podman ps
+(demo-env) $ docker ps
 CONTAINER ID   IMAGE                                    COMMAND                  CREATED       STATUS       PORTS
        NAMES
 5fef9e8aec02   localhost/rest-service-demo:jvm          "java -jar app.jar -…"   8 hours ago   Up 8 hours   0.0.0.0:8081->8080/tcp   rest-service-demo-jvm
@@ -314,7 +314,7 @@ a8e45684e8f3   localhost/rest-service-demo:pgo          "/app -Xms64m -Xmx64m"  
 To stop the containers, execute:
 
 ```
-(demo-env) $ src/main/resources/containers/podman-compose -f src/main/resources/containers/podman-compose.yml down
+(demo-env) $ docker-compose -f src/main/resources/containers/podman-compose.yml down
 ```
 
 
@@ -345,7 +345,7 @@ Using `upx` we reduced the native image executable size by ~33% (from **48 MB** 
 Our native image container is now **121 MB** (versus the uncompressed version at **154 MB**):
 
 ```
-(demo-env) $ podman images
+(demo-env) $ docker images
 localhost/rest-service-demo   upx            7d43ba8808df   26 hours ago    121MB
 localhost/rest-service-demo   native         18772054f07d   26 hours ago    154MB
 ```
@@ -406,10 +406,16 @@ Using the Maven [Eclipse JKube plugin](https://www.eclipse.org/jkube/), we can d
 
 For this example, the **no configuration** option, meaning we'll use the built-in `k8s` profile.
 
-First, we'll need to build a container image:
+First, 
+
 ```
-$ mvn k8s:build
-﻿[INFO] Scanning for projects...
+(demo-env) $ eval $(minikube docker-env)
+```
+
+Next, we'll need to build a container image:
+```
+(demo-env) $ mvn k8s:build
+[INFO] Scanning for projects...
 [INFO] 
 [INFO] -------------------< com.example:rest-service-demo >--------------------
 [INFO] Building rest-service-demo 0.0.1-SNAPSHOT
@@ -433,15 +439,15 @@ $ mvn k8s:build
 Confirm your image was created:
 
 ```
-$ docker images
+(demo-env) $ docker images
 ﻿example/rest-service-demo    latest    a4fc17272ed0   8 minutes ago       157MB
 ```
 
 Next, we'll deploy the application to `minikube`:
 
 ```
-$ mvn k8s:resource k8s:apply
-﻿[INFO] Scanning for projects...
+(demo-env) $ mvn k8s:resource k8s:apply
+[INFO] Scanning for projects...
 [INFO] 
 [INFO] -------------------< com.example:rest-service-demo >--------------------
 [INFO] Building rest-service-demo 0.0.1-SNAPSHOT
@@ -478,7 +484,7 @@ $ mvn k8s:resource k8s:apply
 
 You can see the pod running:
 ```
-$ k get pods -w
+(demo-env) $ k get pods -w
 ﻿NAME                                READY   STATUS    RESTARTS   AGE
 rest-service-demo-5bc6dfbb54-g6cvv   1/1     Running   0          6s
 ```
@@ -486,7 +492,7 @@ rest-service-demo-5bc6dfbb54-g6cvv   1/1     Running   0          6s
 To get the URL for the service, execute the following command (it will automatically open a browser tab):
 
 ```
-$ minikube service rest-service-demo
+(demo-env) $ minikube service rest-service-demo
 ﻿|-----------|-------------------|-------------|---------------------------|
 | NAMESPACE |       NAME        | TARGET PORT |            URL            |
 |-----------|-------------------|-------------|---------------------------|
@@ -505,8 +511,8 @@ or
 
 Finally, you can delete the deployment by executing this command:
 ```
-$ mvn k8s:undeploy
-﻿[INFO] Scanning for projects...
+(demo-env) $ mvn k8s:undeploy
+[INFO] Scanning for projects...
 [INFO] 
 [INFO] -------------------< com.example:rest-service-demo >--------------------
 [INFO] Building rest-service-demo 0.0.1-SNAPSHOT
