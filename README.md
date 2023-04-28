@@ -406,7 +406,7 @@ Using the Maven [Eclipse JKube plugin](https://www.eclipse.org/jkube/), we can d
 
 For this example, the **no configuration** option, meaning we'll use the built-in `k8s` profile.
 
-First, 
+First, we'll configure our environment to use the Docker Engine inside of `minikube`:
 
 ```
 (demo-env) $ eval $(minikube docker-env)
