@@ -106,7 +106,7 @@ Now change directory to the new project:
 
 To build the project, execute:
 ```
-(demo-env) $ mvn clean package
+(demo-env) $ ./mvnw clean package
 ```
 The previous command generates an executable `.jar` file in the `target` directory.
 
