@@ -277,7 +277,9 @@
 },
 {
   "name":"com.sun.management.GcInfo",
-  "queryAllPublicMethods":true
+  "queryAllPublicMethods":true,
+  "fields":[{"name":"builder"}, {"name":"extAttributes"}],
+  "methods":[{"name":"getMemoryUsageBeforeGc","parameterTypes":[] }]
 },
 {
   "name":"com.sun.management.HotSpotDiagnosticMXBean",
@@ -501,6 +503,10 @@
 {
   "name":"io.micrometer.core.instrument.config.MeterRegistryConfig",
   "methods":[{"name":"requireValid","parameterTypes":[] }]
+},
+{
+  "name":"io.micrometer.core.instrument.distribution.TimeWindowMax",
+  "fields":[{"name":"rotating"}]
 },
 {
   "name":"io.micrometer.core.instrument.distribution.TimeWindowSum",
@@ -916,7 +922,8 @@
 },
 {
   "name":"java.lang.management.MemoryUsage",
-  "queryAllPublicMethods":true
+  "queryAllPublicMethods":true,
+  "methods":[{"name":"from","parameterTypes":["javax.management.openmbean.CompositeData"] }]
 },
 {
   "name":"java.lang.management.MonitorInfo",

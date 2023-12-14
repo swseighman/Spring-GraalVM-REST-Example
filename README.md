@@ -2,9 +2,9 @@
 
 ### Prerequisites
 
-Java 17 is used for this example, specifically GraalVM for JDK 17. 
+Java 21 is used for this example, specifically GraalVM for JDK 21. However, the example was verified to work with Java 17 too.
 
-Download GraalVM for JDK 17 [here](https://www.oracle.com/java/technologies/downloads/#graalvmjava17) or use SDKMAN to install GraalVM.
+Download GraalVM for JDK 21 [here](https://www.oracle.com/java/technologies/downloads/#graalvmjava21) or use SDKMAN to install GraalVM.
 
 You also have the option of using [script-friendly URLs](https://www.oracle.com/java/technologies/jdk-script-friendly-urls/) (including containers) to automate downloads.
 
@@ -182,7 +182,7 @@ Next, you'll need to run the newly created instrumented app to generate the prof
 
 Finally, we'll build an optimized native executable (using the `pom.xml` profile to specify the path to the collected profile information):
 ```
-(demo-env) $ ./mvwn -Ppgo native:compile -DskipTests
+(demo-env) $ ./mvnw -Ppgo native:compile -DskipTests
 ```
 
 
