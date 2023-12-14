@@ -4,7 +4,7 @@
 
 Java 17 is used for this example, specifically GraalVM for JDK 17. 
 
-Download GraalVM for JDK 17 [here](https://www.oracle.com/java/technologies/downloads/#graalvmjava17) or use SDKMAN to install GRaalVM.
+Download GraalVM for JDK 17 [here](https://www.oracle.com/java/technologies/downloads/#graalvmjava17) or use SDKMAN to install GraalVM.
 
 You also have the option of using [script-friendly URLs](https://www.oracle.com/java/technologies/jdk-script-friendly-urls/) (including containers) to automate downloads.
 
@@ -387,7 +387,7 @@ Next, we'll deploy the application to `minikube`:
 [INFO] Building rest-service-demo 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- kubernetes-maven-plugin:1.12.0:resource (default-cli) @ rest-service-demo ---
+[INFO] --- kubernetes-maven-plugin:1.15.0:resource (default-cli) @ rest-service-demo ---
 [INFO] k8s: Using Dockerfile: /home/sseighma/code/Spring-GraalVM-REST-Example/Dockerfile
 [INFO] k8s: Using Docker Context Directory: /home/sseighma/code/Spring-GraalVM-REST-Example
 [INFO] k8s: Using resource templates from /home/sseighma/code/Spring-GraalVM-REST-Example/src/main/jkube
@@ -400,7 +400,7 @@ Next, we'll deploy the application to `minikube`:
 [INFO] k8s: validating /home/sseighma/code/Spring-GraalVM-REST-Example/target/classes/META-INF/jkube/kubernetes/rest-service-demo-service.yml resource
 [INFO] k8s: validating /home/sseighma/code/Spring-GraalVM-REST-Example/target/classes/META-INF/jkube/kubernetes/rest-service-demo-deployment.yml resource
 [INFO] 
-[INFO] --- kubernetes-maven-plugin:1.12.0:apply (default-cli) @ rest-service-demo ---
+[INFO] --- kubernetes-maven-plugin:1.15.0:apply (default-cli) @ rest-service-demo ---
 [INFO] k8s: Using Kubernetes at https://192.168.49.2:8443/ in namespace null with manifest /home/sseighma/code/Spring-GraalVM-REST-Example/target/classes/META-INF/jkube/kubernetes.yml 
 [INFO] k8s: Creating a Service from kubernetes.yml namespace default name rest-service-demo
 [INFO] k8s: Created Service: target/jkube/applyJson/default/service-rest-service-demo.json
@@ -452,7 +452,7 @@ Finally, you can delete the deployment by executing this command:
 [INFO] Building rest-service-demo 0.0.1-SNAPSHOT
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- kubernetes-maven-plugin:1.12.0:undeploy (default-cli) @ rest-service-demo ---
+[INFO] --- kubernetes-maven-plugin:1.15.0:undeploy (default-cli) @ rest-service-demo ---
 [INFO] k8s: Deleting resource Deployment default/rest-service-demo
 [INFO] k8s: Deleting resource Service default/rest-service-demo
 [INFO] ------------------------------------------------------------------------
