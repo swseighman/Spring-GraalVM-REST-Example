@@ -213,7 +213,7 @@ To run the static native executable application, execute the following:
 
 ### Deployment Options
 
-Included in this example are options to create/deploy your application using containers using traditional methods plus Buildpacks and Kubernetes.
+Included in this example are options to create/deploy your application using traditional container methods, plus examples using Buildpacks or Kubernetes.
 
 #### Using Buildpacks
 
