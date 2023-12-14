@@ -160,7 +160,7 @@ With PGO you can collect the profiling data in advance and then feed it to the `
 
 First, we'll build an instrumented native executable using the following command: 
 ```
-(demo-env) $ ./mvnw -Ppgo-inst -DskipTests
+(demo-env) $ ./mvnw -Ppgo-inst native:compile -DskipTests
 ```
 
 >**NOTE:** If you encounter the following error:
@@ -182,7 +182,7 @@ Next, you'll need to run the newly created instrumented app to generate the prof
 
 Finally, we'll build an optimized native executable (using the `pom.xml` profile to specify the path to the collected profile information):
 ```
-(demo-env) $ ./mvwn -Ppgo -DskipTests
+(demo-env) $ ./mvwn -Ppgo native:compile -DskipTests
 ```
 
 
@@ -202,7 +202,7 @@ Also add `x86_64-linux-musl-native/bin/` to your PATH.
 
 Then execute:
 ```
-(demo-env) $ ./mvnw -Pstatic -DskipTests
+(demo-env) $ ./mvnw -Pstatic native:compile -DskipTests
 ```
 
 To run the static native executable application, execute the following:
@@ -231,6 +231,12 @@ When the process is completed, you should have a new image:
 $ docker images
 REPOSITORY                                TAG              IMAGE ID       CREATED         SIZE
 rest-service-demo                         0.0.1-SNAPSHOT   d4ddd877a035   43 years ago    130MB
+```
+
+To start the container, execute:
+
+```
+$ docker run --rm -p 8080:8080 rest-service-demo:0.0.1-SNAPSHOT
 ```
 
 #### Using Containers
@@ -266,7 +272,7 @@ You can repeat these steps for each container option:
 * Dockerfile.jvm
 * Dockerfile.native
 * Dockerfile.pgo
-* Dockerfile.upx
+* Dockerfile.upx (see `Compressing the Native Image Executable` below)
 * Dockerfile.stage
 * Dockerfile.jlink
 * Dockerfile.distroless
