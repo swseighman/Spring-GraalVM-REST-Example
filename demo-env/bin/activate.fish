@@ -29,7 +29,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/sseighma/code/Spring-GraalVM-REST-Example/demo-env"
+set -gx VIRTUAL_ENV "/home/sseighma/code/cvs/Spring-GraalVM-REST-Example/demo-env"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

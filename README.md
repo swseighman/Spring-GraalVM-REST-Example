@@ -2,15 +2,13 @@
 
 ### Prerequisites
 
-Java 17 is used for this example, specifically GraalVM 22.3.1 Enterprise Edition and the `native-image` module. You can install GraalVM with native image support using a single line:
+Java 17 is used for this example, specifically GraalVM for JDK 17. 
 
-```
-$ bash <(curl -sL https://get.graalvm.org/jdk)
-```
+Download GraalVM for JDK 17 [here](https://www.oracle.com/java/technologies/downloads/#graalvmjava17) or use SDKMAN to install GRaalVM.
 
-More download info is [here](https://medium.com/p/91ee8d4e6ffd).
+You also have the option of using [script-friendly URLs](https://www.oracle.com/java/technologies/jdk-script-friendly-urls/) (including containers) to automate downloads.
 
-Spring Boot 3.0.0 with native support is used and requires GraalVM 22.3.0.
+Spring Boot 3.2.0 with native support is used and requires GraalVM 23.0.
 
 Oracle Linux 8/9 `(x86_64)` was used as the underlying OS as some features are only available on `x86_64` platforms.
 
@@ -115,7 +113,7 @@ The previous command generates an executable `.jar` file in the `target` directo
 The following command will run unit tests and enable the Tracing Agent, thus generating the Tracing Agent configuration for your application:
 
 ```
-(demo-env) $ mvn -PnativeTest -DskipNativeTests=true -DskipNativeBuild=true -Dagent=true test
+(demo-env) $ ./mvnw -PnativeTest -DskipNativeTests=true -DskipNativeBuild=true -Dagent=true test
 ```
 
 To verify the newly created Tracing Agent configuration, execute the following command.
@@ -137,7 +135,7 @@ Next, build the native image executable using the configuration files. The `pom.
 > **NOTE:** With the introduction of Spring Boot 3.0, there is a new goal to trigger native image compilation, see more information on Spring Boot 3.0 [here](https://docs.spring.io/spring-boot/docs/3.0.0/reference/html/native-image.html#native-image.developing-your-first-application.native-build-tools.maven).
 
 ```
-(demo-env) $ mvn -Pnative native:compile -Dagent=true -DskipTests package
+(demo-env) $ ./mvnw -Pnative native:compile -Dagent=true -DskipTests
 ```
 >**NOTE:** If you're using an Oracle Cloud Infrastructure (OCI) instance, you may need to install the `libstdc` library:
 >```
@@ -162,7 +160,7 @@ With PGO you can collect the profiling data in advance and then feed it to the `
 
 First, we'll build an instrumented native executable using the following command: 
 ```
-(demo-env) $ mvn -Ppgo-inst -DskipTests package
+(demo-env) $ ./mvnw -Ppgo-inst -DskipTests
 ```
 
 >**NOTE:** If you encounter the following error:
@@ -184,7 +182,7 @@ Next, you'll need to run the newly created instrumented app to generate the prof
 
 Finally, we'll build an optimized native executable (using the `pom.xml` profile to specify the path to the collected profile information):
 ```
-(demo-env) $ mvn -Ppgo -DskipTests package
+(demo-env) $ ./mvwn -Ppgo -DskipTests
 ```
 
 
@@ -204,7 +202,7 @@ Also add `x86_64-linux-musl-native/bin/` to your PATH.
 
 Then execute:
 ```
-(demo-env) $ mvn -Pstatic -DskipTests package
+(demo-env) $ ./mvnw -Pstatic -DskipTests
 ```
 
 To run the static native executable application, execute the following:
@@ -213,11 +211,31 @@ To run the static native executable application, execute the following:
 ```
 
 
-### Container Options
+### Deployment Options
+
+Included in this example are options to create/deploy your application using containers using traditional methods plus Buildpacks and Kubernetes.
+
+#### Using Buildpacks
+
+Cloud Native Buildpacks are also supported to generate a lightweight container containing a native executable.
+
+To use Buildpacks, enter the following command:
+
+```
+$ ./mvnw -Pnative spring-boot:build-image
+```
+
+When the process is completed, you should have a new image:
+
+```
+$ docker images
+REPOSITORY                                TAG              IMAGE ID       CREATED         SIZE
+rest-service-demo                         0.0.1-SNAPSHOT   d4ddd877a035   43 years ago    130MB
+```
+
+#### Using Containers
 
 Within this repository, there are a few examples of deploying applications in various container environments, from distroless to full OS images.  Choose the appropriate version for your use case and build the images.
-
->NOTE: Spring Boot includes support for Cloud Native Buildpacks to generate a lightweight container containing a native executable.  In this example, we'll build containers outside of the Buildpacks method.
 
 For example, to build the JAR version:
 
@@ -315,89 +333,6 @@ To stop the containers, execute:
 ```
 (demo-env) $ docker-compose -f src/main/resources/containers/docker-compose.yml down
 ```
-
-
-### Compressing the Native Image Executable
-
-You can choose to compress the native image executable using the [upx](https://upx.github.io/) utility which will reduce your container size but have little impact on startup performance.
-
-For example:
-
-```
-(demo-env) $ upx -7 -k target/rest-service-demo
-Ultimate Packer for eXecutables
-                          Copyright (C) 1996 - 2020
-UPX 3.96        Markus Oberhumer, Laszlo Molnar & John Reiser   Jan 23rd 2020
-
-        File size         Ratio      Format      Name
-   --------------------   ------   -----------   -----------
-  84541616 ->  26604004   31.47%   linux/amd64   rest-service-demo
-
-Packed 1 file.
-```
-Using `upx` we reduced the native image executable size by ~33% (from **48 MB** to **16 MB**):
-```
--rwxrwxr-x 1 sseighma sseighma  16M Oct 13 13:28 rest-service-demo
--rwxrwxr-x 1 sseighma sseighma  48M Oct 13 13:28 rest-service-demo.~
-```
-
-Our native image container is now **121 MB** (versus the uncompressed version at **154 MB**):
-
-```
-(demo-env) $ docker images
-localhost/rest-service-demo   upx            7d43ba8808df   26 hours ago    121MB
-localhost/rest-service-demo   native         18772054f07d   26 hours ago    154MB
-```
-
-### Enabling JDK Flight Recorder
-
-To build a native image with the JFR events support, you first need to enable JFR at image build time. The `pom.xml` includes parameters to build a native executable with JFR support enabled (in the `<buildArgs`):
-
-```
-    <buildArgs>
-	<!-- Quick build mode is enabled  -->
-	<buildArg>-Ob</buildArg>
-	<!-- G1 is supported on Linux only, comment out next line if on another platform -->
-	<buildArg>--gc=G1</buildArg>
-	<!-- Enable JFR support -->
-	<buildArg>--enable-monitoring=jfr</buildArg>
-	<!-- Show exception stack traces for exceptions during image building -->
-	<buildArg>-H:+ReportExceptionStackTraces</buildArg>
-    </buildArgs>
-```
-					
-After building the native executable, to enable JFR and start a recording, execute the following command:
-```
-(demo-env) $ target/rest-service-demo -XX:+FlightRecorder -XX:StartFlightRecording="filename=recording.jfr"
-```
-You will notice a `recording.jfr` file in the project root directory.  You can import this file into JDK Mission Control or view events via the command line. See more info [here](https://docs.oracle.com/en/java/java-components/jdk-mission-control/8/user-guide/using-jdk-flight-recorder.html#GUID-D38849B6-61C7-4ED6-A395-EA4BC32A9FD6).
-
-
-Currently, JFR support includes these limitations:
-* JFR events recording is not supported on GraalVM distribution for Windows.
-
-See the [docs](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/debugging-and-diagnostics/JFR/) for additional information.
-
-
-### Viewing Project Metrics
-
-If you're curious about image and container sizes or want to see the startup times for the containers created in this example, there are scripts located in the `src/main/resources/scripts` directory that create bar graphs for each.
-
-To compare images sizes, run the `image-sizes.sh` script:
-
-![](images/image-size.png)
-
-To compare container sizes, run the `container-sizes.sh` script:
-
-![](images/container-size.png)
-
-To compare startup times, run the `startups.sh` script:
-
-![](images/startup.png)
-
-The graphs are generated using the `termgraph` tool we installed earlier.
-
-Your results will vary depending on the system used to host the project examples.
 
 ### Deploying to Kubernetes Using Maven (minikube)
 
@@ -528,3 +463,85 @@ Finally, you can delete the deployment by executing this command:
 [INFO] ------------------------------------------------------------------------
 
 ```
+
+### Compressing the Native Image Executable
+
+You can choose to compress the native image executable using the [upx](https://upx.github.io/) utility which will reduce your container size but have little impact on startup performance.
+
+For example:
+
+```
+(demo-env) $ upx -7 -k target/rest-service-demo
+Ultimate Packer for eXecutables
+                          Copyright (C) 1996 - 2020
+UPX 3.96        Markus Oberhumer, Laszlo Molnar & John Reiser   Jan 23rd 2020
+
+        File size         Ratio      Format      Name
+   --------------------   ------   -----------   -----------
+  84541616 ->  26604004   31.47%   linux/amd64   rest-service-demo
+
+Packed 1 file.
+```
+Using `upx` we reduced the native image executable size by ~33% (from **48 MB** to **16 MB**):
+```
+-rwxrwxr-x 1 sseighma sseighma  16M Oct 13 13:28 rest-service-demo
+-rwxrwxr-x 1 sseighma sseighma  48M Oct 13 13:28 rest-service-demo.~
+```
+
+Our native image container is now **121 MB** (versus the uncompressed version at **154 MB**):
+
+```
+(demo-env) $ docker images
+localhost/rest-service-demo   upx            7d43ba8808df   26 hours ago    121MB
+localhost/rest-service-demo   native         18772054f07d   26 hours ago    154MB
+```
+
+### Enabling JDK Flight Recorder
+
+To build a native image with the JFR events support, you first need to enable JFR at image build time. The `pom.xml` includes parameters to build a native executable with JFR support enabled (in the `<buildArgs`):
+
+```
+    <buildArgs>
+	<!-- Quick build mode is enabled  -->
+	<buildArg>-Ob</buildArg>
+	<!-- G1 is supported on Linux only, comment out next line if on another platform -->
+	<buildArg>--gc=G1</buildArg>
+	<!-- Enable JFR support -->
+	<buildArg>--enable-monitoring=jfr</buildArg>
+	<!-- Show exception stack traces for exceptions during image building -->
+	<buildArg>-H:+ReportExceptionStackTraces</buildArg>
+    </buildArgs>
+```
+					
+After building the native executable, to enable JFR and start a recording, execute the following command:
+```
+(demo-env) $ target/rest-service-demo -XX:+FlightRecorder -XX:StartFlightRecording="filename=recording.jfr"
+```
+You will notice a `recording.jfr` file in the project root directory.  You can import this file into JDK Mission Control or view events via the command line. See more info [here](https://docs.oracle.com/en/java/java-components/jdk-mission-control/8/user-guide/using-jdk-flight-recorder.html#GUID-D38849B6-61C7-4ED6-A395-EA4BC32A9FD6).
+
+
+Currently, JFR support includes these limitations:
+* JFR events recording is not supported on GraalVM distribution for Windows.
+
+See the [docs](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/debugging-and-diagnostics/JFR/) for additional information.
+
+
+### Viewing Project Metrics
+
+If you're curious about image and container sizes or want to see the startup times for the containers created in this example, there are scripts located in the `src/main/resources/scripts` directory that create bar graphs for each.
+
+To compare images sizes, run the `image-sizes.sh` script:
+
+![](images/image-size.png)
+
+To compare container sizes, run the `container-sizes.sh` script:
+
+![](images/container-size.png)
+
+To compare startup times, run the `startups.sh` script:
+
+![](images/startup.png)
+
+The graphs are generated using the `termgraph` tool we installed earlier.
+
+Your results will vary depending on the system used to host the project examples.

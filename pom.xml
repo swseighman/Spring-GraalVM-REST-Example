@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.5</version>
+		<version>3.2.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
@@ -15,7 +15,7 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
-		<jkube.version>1.12.0</jkube.version>
+		<jkube.version>1.15.0</jkube.version>
         <jkube.enricher.jkube-service.type>NodePort</jkube.enricher.jkube-service.type>
 	</properties>
 	
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>5.9.2</version>
+			<version>5.10.1</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -93,18 +93,26 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<image>
+					<buildpacks>
+						<buildpack>docker.io/paketobuildpacks/oracle</buildpack>
+						<buildpack>urn:cnb:builder:paketo-buildpacks/java-native-image</buildpack>
+					</buildpacks>
+					</image>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.graalvm.buildtools</groupId>
 				<artifactId>native-maven-plugin</artifactId>
-				<version>0.9.21</version>
+				<!-- <version>0.9.28</version> -->
 				<extensions>true</extensions>
 				<configuration>
 					<metadataRepository>
 						<enabled>true</enabled>
 					</metadataRepository>
 					<imageName>${project.artifactId}</imageName>
-					<mainClass>${exec.mainClass}</mainClass>
+					<!-- <mainClass>${exec.mainClass}</mainClass> -->
 					<buildArgs>
 						<!-- Quick build mode is enabled  -->
 						<buildArg>-Ob</buildArg>
@@ -149,139 +157,72 @@
             </plugin>
 		</plugins>
 	</build>
+
 	<profiles>
+		<!-- Create and instrumented native executable and run it BEFORE building the PGO version below -->
 		<profile>
 			<id>pgo-inst</id>
-			<properties>
-				<repackage.classifier>exec</repackage.classifier>
-			</properties>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.graalvm.buildtools</groupId>
-						<artifactId>native-maven-plugin</artifactId>
-						<extensions>true</extensions>
-						<executions>
-							<execution>
-								<id>build-native</id>
-								<phase>package</phase>
-								<goals>
-									<goal>build</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<imageName>rest-service-demo-pgoinst</imageName>
-							<!-- <mainClass>${exec.mainClass}</mainClass> -->
-							<buildArgs>
-								<!-- Quick build mode is enabled  -->
-								<buildArg>-Ob</buildArg>
-								<!-- G1 is supported on Linux only, comment out next line if on another platform -->
-								<buildArg>--gc=G1</buildArg>
-								<buildArg>--pgo-instrument</buildArg>
-							</buildArgs>
-                        </configuration>
+					<groupId>org.graalvm.buildtools</groupId>
+					<artifactId>native-maven-plugin</artifactId>
+					<!--<version>0.9.28</version>-->
+					<configuration>
+						<verbose>true</verbose>
+						<quickBuild>true</quickBuild>
+						<imageName>rest-service-demo-pgoinst</imageName>
+						<!-- <mainClass>${exec.mainClass}</mainClass> -->
+						<buildArgs combine.children="append">
+							<arg>--pgo-instrument</arg>
+						</buildArgs>
+					</configuration>
 					</plugin>
-					<plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <configuration>
-                            <classifier>exec</classifier>
-                        </configuration>
-                    </plugin>
 				</plugins>
 			</build>
 		</profile>
 		
-		<!-- Run the newly created instrumented native executable BEFORE building the PGO version with this profile -->
+		<!-- Create the PGO version using the generated instrumented data above -->
 		<profile>
 			<id>pgo</id>
-			<properties>
-				<repackage.classifier>exec</repackage.classifier>
-			</properties>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.graalvm.buildtools</groupId>
-						<artifactId>native-maven-plugin</artifactId>
-						<extensions>true</extensions>
-						<executions>
-							<execution>
-								<id>build-native</id>
-								<phase>package</phase>
-								<goals>
-									<goal>build</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<imageName>rest-service-demo-pgo</imageName>
-							<!-- <mainClass>${exec.mainClass}</mainClass> -->
-							<buildArgs>
-								<!-- Quick build mode is enabled  -->
-								<buildArg>-Ob</buildArg>
-								<!-- G1 is supported on Linux only, comment out next line if on another platform -->
-								<buildArg>--gc=G1</buildArg>
-								<buildArg>--pgo=${project.basedir}/default.iprof</buildArg>
-							</buildArgs>
-                        </configuration>
+					<groupId>org.graalvm.buildtools</groupId>
+					<artifactId>native-maven-plugin</artifactId>
+					<!--<version>0.9.28</version>-->
+					<configuration>
+						<verbose>true</verbose>
+						<quickBuild>true</quickBuild>
+						<imageName>rest-service-demo-pgo</imageName>
+						<buildArgs combine.children="append">
+							<arg>--pgo=${project.basedir}/default.iprof</arg>
+						</buildArgs>
+					</configuration>
 					</plugin>
-					<plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <configuration>
-                            <classifier>exec</classifier>
-                        </configuration>
-                    </plugin>
 				</plugins>
 			</build>
 		</profile>
 		
+		<!-- Create a static version -->
 		<profile>
 			<id>static</id>
-			<properties>
-				<repackage.classifier>exec</repackage.classifier>
-				<version>${native.maven.plugin.version}</version>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>org.junit.platform</groupId>
-					<artifactId>junit-platform-launcher</artifactId>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.graalvm.buildtools</groupId>
-						<artifactId>native-maven-plugin</artifactId>
-						<extensions>true</extensions>
-						<executions>
-							<execution>
-								<id>build-native</id>
-								<phase>package</phase>
-								<goals>
-									<goal>build</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<imageName>rest-service-demo-static</imageName>
-							<mainClass>${exec.mainClass}</mainClass>
-							<buildArgs>
-								<!-- Static args -->
-								<buildArg>--static</buildArg>
-								<buildArg>--libc=musl</buildArg>
-							</buildArgs>
+					<groupId>org.graalvm.buildtools</groupId>
+					<artifactId>native-maven-plugin</artifactId>
+					<configuration>
+						<verbose>true</verbose>
+						<quickBuild>true</quickBuild>
+						<imageName>rest-service-demo-static</imageName>
+						<mainClass>${exec.mainClass}</mainClass>
+						<buildArgs>
+							<buildArg>--static</buildArg>
+							<buildArg>--libc=musl</buildArg>
+						</buildArgs>
                         </configuration>
 					</plugin>
-					<plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <configuration>
-                            <classifier>exec</classifier>
-                        </configuration>
-                    </plugin>
 				</plugins>
 			</build>
 		</profile>
