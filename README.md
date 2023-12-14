@@ -338,6 +338,8 @@ To stop the containers, execute:
 
 Using the Maven [Eclipse JKube plugin](https://www.eclipse.org/jkube/), we can deploy the application to `minikube` (or any Kubernetes platform) directly.
 
+>NOTE: Instructions for installing `minikube`` are [here](https://minikube.sigs.k8s.io/docs/start/).
+
 For this example, the **no configuration** option, meaning we'll use the built-in `k8s` profile.
 
 First, we'll configure our environment to use the Docker Engine inside of `minikube`:
