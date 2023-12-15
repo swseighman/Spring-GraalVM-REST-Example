@@ -122,6 +122,8 @@
 						<buildArg>--enable-monitoring=jfr</buildArg>
 						<!-- Show exception stack traces for exceptions during image building -->
 						<buildArg>-H:+ReportExceptionStackTraces</buildArg>
+						<!-- Add a Build Report -->
+						<buildArg>-H:+BuildReport</buildArg>
 					</buildArgs>
 				</configuration>
 			</plugin>

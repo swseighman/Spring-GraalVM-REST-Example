@@ -152,11 +152,11 @@ To run the native executable application, execute the following:
 
 ### Building a PGO Executable
 
-You can optimize this native executable even more for additional performance gain and higher throughput by applying Profile-Guided Optimizations (PGO).
+You can optimize this native executable even more with additional performance gains and higher throughput by applying Profile-Guided Optimizations (PGO).
 
-With PGO you can collect the profiling data in advance and then feed it to the `native-image` tool, which will use this information to optimize the performance of the resulting binary.
+With PGO you can collect profiling data in advance and then use the `native-image` tool once again, which uses this information to optimize the performance of the resulting executable.
 
->**NOTE:** PGO is available with GraalVM Enterprise Edition only.
+>**NOTE:** PGO is available with Oracle GraalVM only.
 
 First, we'll build an instrumented native executable using the following command: 
 ```
@@ -179,6 +179,7 @@ Next, you'll need to run the newly created instrumented app to generate the prof
 ```
 (demo-env) $  target/rest-service-demo-pgoinst
 ```
+Exercise the app by accessing the endpoints and then stop the application. A profile will be generated in the root directory (`default.iprof`).
 
 Finally, we'll build an optimized native executable (using the `pom.xml` profile to specify the path to the collected profile information):
 ```
@@ -191,9 +192,11 @@ Finally, we'll build an optimized native executable (using the `pom.xml` profile
 
 See [instructions](https://docs.oracle.com/en/graalvm/enterprise/22/docs/reference-manual/native-image/guides/build-static-executables/) for building and installing the required libraries.
 
->**NOTE:** Confirmed the static image will build using `musl 10.2.1` (fails to build with `musl 11.2.1`).
+>**NOTE:** The static image will build using `musl 10.2.1` (fails to build with `musl 11.2.1`).
 >To download `musl 10.2.1`, click on the `more ...` link under **toolchains** and then choose the `10.2.1` directory.
+>
 >![](images/musl-download.png)
+>
 >![](images/musl-download-1.png)
 
 After the process has been completed, copy `$ZLIB_DIR/libz.a` to `$GRAALVM_HOME/lib/static/linux-amd64/musl/`
@@ -201,6 +204,7 @@ After the process has been completed, copy `$ZLIB_DIR/libz.a` to `$GRAALVM_HOME/
 Also add `x86_64-linux-musl-native/bin/` to your PATH.
 
 Then execute:
+
 ```
 (demo-env) $ ./mvnw -Pstatic native:compile -DskipTests
 ```
